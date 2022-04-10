@@ -18,7 +18,22 @@ const Collection = new Schema({
 const User = new Schema({
     email: {
         type: Schema.Types.String,
-        required: true
+        required: true,
+        validate:{
+            validator: function(v){
+                return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v)
+            },
+            message: props => `${props.value} is not a valid email` 
+        }
+    },
+    phone:{
+        type: Schema.Types.String,
+        validate:{
+            validator: function(v){
+                return /\d{10}/.test(v)
+            },
+            message: props=> `${props.value} is not a valid phone number!`
+        }
     },
     password: {
         type: Schema.Types.String,

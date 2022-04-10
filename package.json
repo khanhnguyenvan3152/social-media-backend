@@ -10,6 +10,7 @@
     "apollo-server": "^3.6.6",
     "apollo-server-core": "^3.6.7",
     "apollo-server-express": "^3.6.7",
+    "bcrypt": "^5.0.1",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "debug": "~2.6.9",

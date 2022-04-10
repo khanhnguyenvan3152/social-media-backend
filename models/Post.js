@@ -5,13 +5,7 @@ const Image = new Schema({
     url: String,
     timestamps: Number
 })
-const Comment = new Schema({
-    user:{
-        type: Schema.Types.ObjectId,
-        ref:'user'
-    },
-    content: Schema.Types.String
-})
+
 const Post = new Schema({
     content:{
         type: Schema.Types.String
@@ -19,6 +13,8 @@ const Post = new Schema({
     images: [Image],
     timestamps: Number,
     comments:[Comment]
+},{
+    timestamps:true
 })
 
 module.exports = mongoose.model('post',Post)
