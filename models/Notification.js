@@ -18,6 +18,8 @@ const NotificationSchema = new Schema({
         ref:'comment'
     },
     action: Schema.Types.String
+},{
+    timestamps:true
 })
 
 module.exports = mongoose.model('notification',NotificationSchema);

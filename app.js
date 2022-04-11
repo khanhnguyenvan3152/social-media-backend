@@ -10,7 +10,7 @@ var indexRouter = require('./routes/index');
 var apiRouter = require('./routes/api');
 
 var { typeDefs } = require('./graphql/typeDefs')
-var { resolvers } = require('./graphql/resolvers/users')
+var resolvers = require('./graphql/resolvers')
 const { ApolloServer } = require('apollo-server-express');
 const { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-server-core');
 

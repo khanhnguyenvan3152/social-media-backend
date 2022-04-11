@@ -1,22 +1,22 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema;
 
-const Image = new Schema({
-    url: String,
-    timestamps: Number
-})
-
 const Post = new Schema({
     content:{
         type: Schema.Types.String
     },
-    images: [Image],
+    images: [{
+        type:Schema.Types.ObjectId,
+        ref:'image'
+    }],
     timestamps: Number,
-    comments:[Comment]
+    comments:[{
+        type: Schema.Types.ObjectId,
+        ref: 'comment'
+    }],
+    mode:['public','private','friends']
 },{
     timestamps:true
 })
 
 module.exports = mongoose.model('post',Post)
-module.exports.Comment = Comment;
-module.exports.Image = Image;

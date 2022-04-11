@@ -14,6 +14,8 @@ const CollectionSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref:'saveitem'
     }]
+},{
+    timestamps:true
 })
 
 module.exports = mongoose.model('collection',CollectionSchema)

@@ -1,20 +1,6 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
-const Item = new Schema({
-    post: {
-        type: Schema.Types.ObjectId,
-        ref: 'post'
-    }
-})
-
-const Collection = new Schema({
-    name: {
-        type: Schema.Types.String
-    },
-    items: [Item]
-})
-
 const User = new Schema({
     email: {
         type: Schema.Types.String,
@@ -27,13 +13,13 @@ const User = new Schema({
         }
     },
     phone:{
-        type: Schema.Types.String,
-        validate:{
-            validator: function(v){
-                return /\d{10}/.test(v)
-            },
-            message: props=> `${props.value} is not a valid phone number!`
-        }
+       contryCode:{
+           type: Schema.Types.String,
+       },
+       number:{
+           type: Schema.Types.String
+       }
+        
     },
     password: {
         type: Schema.Types.String,
@@ -60,10 +46,12 @@ const User = new Schema({
             ref: 'post'
         }
     ],
-    notficationsStore: {
-        type: Schema.Types.ObjectId,
-        ref: 'notisStore'
-    },
+    notfications: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'notification'
+        }
+    ],
     follows: [
         {
             type: Schema.Types.ObjectId,
@@ -77,11 +65,12 @@ const User = new Schema({
         }
     ],
     saved: [
-        Collection
+        {
+            type: Schema.Types.ObjectId,
+            ref:'collection'
+        }
     ]
 }, { timestamps: true })
 
 
 module.exports = mongoose.model('user', User)
-module.exports.Collection = Collection;
-module.exports.Item = Item;

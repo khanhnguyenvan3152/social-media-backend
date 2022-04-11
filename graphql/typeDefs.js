@@ -7,10 +7,13 @@ const typeDefs = gql`
         images: [Image]
         user: User!
         timestamps: Int
+        mode: String
     }
     type Image{
         _id:ID!
         url: String!
+        user: User
+        name: String
     }
     type Notification{
         _id: ID!
@@ -59,18 +62,24 @@ const typeDefs = gql`
         firstName: String
         lastName: String
     }
-    input Post{
+    input PostInput{
         content: String
         userId: String
-        images: [Image]
+        images: [ImageInput]
+        mode: String
+    }
+    input ImageInput{
+        url: String
     }
     type Mutation {
         createNewUser(input: UserInput):User
-        createNewPost(inpi)
+        createNewPost(input: PostInput):Post
     }
     type Query{
         users: [User!]!
         user(_id:ID): User
+        posts: [Post!]!
+        post: Post
 
     }
 `
