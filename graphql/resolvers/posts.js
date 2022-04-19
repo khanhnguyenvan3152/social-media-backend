@@ -1,6 +1,5 @@
 const Image = require('../../models/Image');
 const Post = require('../../models/Post')
-
 const resolvers = {
     Query: {
         posts: async function () {

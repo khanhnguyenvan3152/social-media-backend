@@ -1,14 +1,17 @@
 const { gql } = require('apollo-server');
 
 const typeDefs = gql`
+    #Post definition
+    # {images} is an array contain files which have type of image
     type Post {
         _id: ID!
         content: String!
-        images: [Image]
+        images: [File]
         user: User!
         timestamps: Int
         mode: String
     }
+    #Post Input definition
     type Image{
         _id:ID!
         url: String!
@@ -31,13 +34,15 @@ const typeDefs = gql`
         followers: [User]
         avatar: String
         saved: [Collection]
-        notificationsStore: [Notification]
-        phoneNUmber: PhoneNumber
+        notifications: [Notification]
+        phoneNumber: PhoneNumber
+        active:Boolean
     }
     type Item{
         _id: ID!
         post: Post
     }
+  
     type Collection{
         _id: ID!
         name: String
@@ -65,15 +70,24 @@ const typeDefs = gql`
     input PostInput{
         content: String
         userId: String
-        images: [ImageInput]
+        images: ImagesInput
         mode: String
+        File: Upload
     }
-    input ImageInput{
-        url: String
+
+    scalar Upload
+    type File {
+        filename: String!
+        mimetype: String!
+        encoding: String!
+    }
+    input ImagesInput{
+        files: [Upload]
     }
     type Mutation {
         createNewUser(input: UserInput):User
         createNewPost(input: PostInput):Post
+        singleUpload(file:Upload!):File!
     }
     type Query{
         users: [User!]!
@@ -83,4 +97,5 @@ const typeDefs = gql`
 
     }
 `
+console.log(typeDefs)
 module.exports = { typeDefs }

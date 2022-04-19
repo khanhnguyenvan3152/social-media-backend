@@ -2,15 +2,14 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const MessageSchema = new Schema({
-    sender:{
+    owner: {
         type: Schema.Types.ObjectId,
         ref: 'user'
     },
-    receiver:{
-        type: Schema.Types.ObjectId,
-        ref:'user'
+    content: {
+        type: Schema.Types.String,
+        maxlength:1000
     },
-    content: Schema.Types.String,
     seen:{
         type:Schema.Types.Boolean,
         default:false

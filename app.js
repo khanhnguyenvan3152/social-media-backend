@@ -8,18 +8,19 @@ var db = require('./models/db')
 var cors = require('cors')
 var indexRouter = require('./routes/index');
 var apiRouter = require('./routes/api');
-
-var { typeDefs } = require('./graphql/typeDefs')
+var cloudinary = require('./utils/cloudinary')
+var schema = require('./graphql/schema')
 var resolvers = require('./graphql/resolvers')
 const { ApolloServer } = require('apollo-server-express');
 const { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-server-core');
+const { graphqlUploadExpress } = require('graphql-upload');
 
 async function startServer() {
   const app = express();
   const httpServer = http.createServer(app);
   const server = new ApolloServer(
     {
-      typeDefs,
+      typeDefs:schema,
       resolvers,
       plugins: [
         ApolloServerPluginDrainHttpServer({ httpServer }),
@@ -35,6 +36,7 @@ async function startServer() {
   app.use(cors({
     origin: '*'
   }))
+  app.use(graphqlUploadExpress())
   app.use(logger('dev'));
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));

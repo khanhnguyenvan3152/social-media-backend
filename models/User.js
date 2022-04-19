@@ -5,22 +5,26 @@ const User = new Schema({
     email: {
         type: Schema.Types.String,
         required: true,
-        validate:{
-            validator: function(v){
+        validate: {
+            validator: function (v) {
                 return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v)
             },
-            message: props => `${props.value} is not a valid email` 
+            message: props => `${props.value} is not a valid email`
         }
     },
-    phone:{
-       contryCode:{
-           type: Schema.Types.String,
-       },
-       number:{
-           type: Schema.Types.String
-       }
-        
+    phone: {
+        contryCode: {
+            type: Schema.Types.String,
+        },
+        number: {
+            type: Schema.Types.String
+        }
+
     },
+    avatar: String,
+    avatarPublicId: String,
+    cover: String,
+    coverPublicId: String,
     password: {
         type: Schema.Types.String,
         required: true
@@ -64,12 +68,20 @@ const User = new Schema({
             ref: 'user'
         }
     ],
+    conversations:[{
+        type: Schema.Types.ObjectId,
+        ref:'conversation'
+    }],
     saved: [
         {
             type: Schema.Types.ObjectId,
-            ref:'collection'
+            ref: 'collection'
         }
-    ]
+    ],
+    active: {
+        type:Schema.Types.Boolean,
+        default:true
+    }
 }, { timestamps: true })
 
 
