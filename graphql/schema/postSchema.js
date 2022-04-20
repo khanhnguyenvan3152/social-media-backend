@@ -24,6 +24,9 @@ const PostSchema = gql`
         mode: String
         File: Upload
     }
+    input PostUpdateInput{
+        content: String
+    }
     extend type Query{
         posts: [Post]!
         post(_id:ID): Post!
@@ -31,6 +34,7 @@ const PostSchema = gql`
     extend type Mutation{
         createNewPost(input: PostInput):Post
         singleUpload(file: Upload):File!
+        updatePost(input: PostUpdateInput):Post
     }
 `
 module.exports = PostSchema

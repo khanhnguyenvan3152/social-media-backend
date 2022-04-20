@@ -1,5 +1,4 @@
 const { gql } = require('apollo-server-express')
-
 const UserSchema = gql`
     type PhoneNumber{
         countryCode: String,
@@ -34,9 +33,14 @@ const UserSchema = gql`
         firstName: String
         lastName: String
     }
+    type LoginResponse{
+        success: Boolean
+        token: JWT
+    }
     extend type Query{
         users:[User]!
         user(_id:ID): User!
+        login(email:String,password:String):LoginResponse
     }
     extend type Mutation{
         createNewUser(input:UserInput):User

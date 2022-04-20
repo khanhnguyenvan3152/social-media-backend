@@ -5,8 +5,10 @@ const CollectionSchema = require('./collectionSchema')
 const NotificationSchema = require('./notificationSchema')
 const ConversationSchema = require('./collectionSchema')
 const MessageSchema = require('./messageSchema')
+const FollowSchema = require('./followSchema')
 const schema = gql`
     scalar Date
+    scalar JWT
     type Query {
         _empty: String
     }
@@ -22,6 +24,7 @@ const schema = gql`
     ${NotificationSchema}
     ${ConversationSchema}
     ${MessageSchema}
+    ${FollowSchema}
 `
 
 module.exports = schema
