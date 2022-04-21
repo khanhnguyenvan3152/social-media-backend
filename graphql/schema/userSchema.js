@@ -39,7 +39,11 @@ const UserSchema = gql`
     }
     extend type Query{
         users:[User]!
-        user(_id:ID): User!
+        getUserById(_id:ID): User!
+        getUserByEmail(email:String):User
+        getUserFollowers(_id:ID):[User]
+        getUserFollow(_id:ID):[User]
+        userLikePost(_userId:ID,postId:ID):Boolean
         login(email:String,password:String):LoginResponse
     }
     extend type Mutation{

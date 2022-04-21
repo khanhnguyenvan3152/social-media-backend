@@ -6,10 +6,10 @@ const LikeSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'post'
     },
-    user:{
+    user:[{
         type:Schema.Types.ObjectId,
         ref:'user'
-    }
+    }]
 },{
     timestamps:true
 })

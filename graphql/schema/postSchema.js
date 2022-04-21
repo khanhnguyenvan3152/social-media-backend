@@ -11,10 +11,12 @@ const PostSchema = gql`
         _id: ID!
         content: String!
         images: [File]
-        user: User!
+        owner: User!
         timestamps: Int
-        mode: String
+        mode: String,
+        liked: [User]
         createdAt: Date
+        updatedAt: Date
     }
 
     input PostInput{

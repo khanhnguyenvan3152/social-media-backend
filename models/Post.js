@@ -2,6 +2,14 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema;
 
 const Post = new Schema({
+    owner: {
+        type:Schema.Types.ObjectId,
+        ref:'user'
+    },
+    liked:[{
+        type: Schema.Types.ObjectId,
+        ref:'user'
+    }],
     content:{
         type: Schema.Types.String
     },

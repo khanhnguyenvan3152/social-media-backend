@@ -6,6 +6,7 @@ const genPassword = require('../../utils/genPassword')
 const jwt = require('jsonwebtoken')
 const { JWTResolver } = require('graphql-scalars')
 const { tokenSecret } = require('../../config')
+const Post = require('../../models/Post')
 const resolvers = {
     JWT: JWTResolver,
     Query: {
@@ -13,13 +14,27 @@ const resolvers = {
             let result = await User.find().populate('follows')
             return result
         },
-        user: async function (parent, args, context, info) {
+        getUserById: async function (parent, args, context, info) {
             let result = await User.findById(args._id)
             return result;
         },
-        // userByEmail: async function (parent,args,context,info){
-        //     let result = await User.findOne({email: {$regex:new Regex(/args.email/)}})
-        // }
+        getUserByEmail: async function (parent,args,context,info){
+            let result = await User.findOne({email: {$regex:new Regex(/args.email/)}})
+            return result 
+        },
+        getUserFollowers: async function(parent,args,context,info){
+            let result = await User.findById(args._id).select('followers').populate('user')
+            return result;
+        },
+        getUserFollow: async function(parent,args,content,info){
+            let result = await User.findById(args._id).select('follows').populate('user')
+            return result;
+        },
+        userLikePost: async function(parent,args,content,info){
+            let {userId,postId} = args;
+            let result = await Post.findById(postId).select('liked')
+            return result.includes(userId)
+        },
         login: async function(parent,args,context,info){
             let {email,password} = args
             let isUserExist = await User.exists({email:email})
@@ -65,6 +80,7 @@ const resolvers = {
                 throw new UserInputError(Object.values(err.errors)[0])
             }
         }
+        
     }
 }
 
