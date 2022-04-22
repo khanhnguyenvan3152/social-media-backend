@@ -1,5 +1,4 @@
 const { UserInputError, ApolloError } = require('apollo-server-core')
-const { argsToArgsConfig } = require('graphql/type/definition')
 const bcrypt = require('bcrypt')
 const User = require('../../models/User')
 const genPassword = require('../../utils/genPassword')
@@ -7,6 +6,8 @@ const jwt = require('jsonwebtoken')
 const { JWTResolver } = require('graphql-scalars')
 const { tokenSecret } = require('../../config')
 const Post = require('../../models/Post')
+const RESET_PASSWORD_EXPIRY = 3600000
+const AUTH_TOKEN_EXPIRY = '1y'
 const resolvers = {
     JWT: JWTResolver,
     Query: {
@@ -46,9 +47,9 @@ const resolvers = {
                 let isMatch = await bcrypt.compare(password,user.password)
                 if(isMatch){
                     let token = jwt.sign({email:user.email,_id:user._id},tokenSecret)
-                    return {succces:true,token}
+                    return {success:true,token}
                 }else{
-                    throw UserInputError('Email or password does not match')
+                    throw new UserInputError('Email or password does not match')
                 }
             }
         }
@@ -79,8 +80,17 @@ const resolvers = {
                 //Throw error for apollo server message response
                 throw new UserInputError(Object.values(err.errors)[0])
             }
+        },
+        requestResetPassword: async function(parent,args,context,info){
+            //Check if user is exist
+            const user = await User.findOne({email});
+            if(!user){
+                throw new UserInputError('Account does not exist')
+            }
+            
+            //Set password token and its expiry
+            const token = jwt.sign()
         }
-        
     }
 }
 

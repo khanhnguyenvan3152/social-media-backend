@@ -81,6 +81,10 @@ const User = new Schema({
     active: {
         type:Schema.Types.Boolean,
         default:true
+    },
+    resetPasswordToken: {
+        type: Schema.Types.String,
+        default: ''
     }
 }, { timestamps: true })
 

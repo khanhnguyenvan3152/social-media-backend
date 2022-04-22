@@ -48,6 +48,7 @@ const UserSchema = gql`
     }
     extend type Mutation{
         createNewUser(input:UserInput):User
+        requestResetPassword(email:String):User
     }
 `
 

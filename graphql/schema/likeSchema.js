@@ -6,6 +6,7 @@ const LikeSchema = gql`
         users: [User]
     }
     extend type Query{
-
+        getUserLikedPosts(_postId:ID):[User]
     }
 `
+module.exports = LikeSchema
