@@ -16,6 +16,9 @@ const resolvers = {
     },
     Mutation: {
         createNewPost: async function ({ args, context, info, parent }) {
+            if(!context.user){
+                throw new AuthenticationError('You do not have permission!')
+            }
             let { content, userId, image } = args.input
             if(!content) throw new UserInputError("Post's content is required")
             let imageURL,imagePublicId,imageObjectId

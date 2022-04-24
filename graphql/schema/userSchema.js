@@ -20,10 +20,14 @@ const UserSchema = gql`
         avatar: String
         saved: [Collection]
         notifications: [Notification]
+        resetPasswordToken: String
+        resetPasswordTokenExpiry: Date
         phoneNumber: PhoneNumber
         createdAt: Date
         gender:String
         active: Boolean
+        birth: Date
+        
     }
     input UserInput{
         email:String
@@ -33,9 +37,42 @@ const UserSchema = gql`
         firstName: String
         lastName: String
     }
+
+    input RequestResetPasswordInput{
+        email: String!
+    }
+    
+    input ResetPasswordInput{
+        email: String!
+        token: String!
+        newPassword: String!
+    }
+
     type LoginResponse{
         success: Boolean
         token: JWT
+    }
+    type UserPayload{
+        id: ID!
+        fullName: String
+        lastName: String
+        email: String
+        password: String
+        avatar: String
+        avatarPublicId: String
+        cover: String
+        coverPublicId: String
+        isOnline: Boolean
+        posts: [PostPayload]
+        likes: [Like]
+        followers: [Follow]
+        followings: [Follow]
+        notifications: [NotificationPayload]
+        conversations: [ConversationPayload]
+        unseenMessage: Boolean
+        createdAt: String
+        updatedAt: String
+
     }
     extend type Query{
         users:[User]!
@@ -43,12 +80,15 @@ const UserSchema = gql`
         getUserByEmail(email:String):User
         getUserFollowers(_id:ID):[User]
         getUserFollow(_id:ID):[User]
+        getUserConversations(_id:ID):[User]
+        getAuthUser: User
         userLikePost(_userId:ID,postId:ID):Boolean
         login(email:String,password:String):LoginResponse
     }
     extend type Mutation{
-        createNewUser(input:UserInput):User
-        requestResetPassword(email:String):User
+        createNewUser(input:UserInput!):User
+        requestResetPassword(input:RequestResetPasswordInput!):User
+        resetPassword(input: ResetPasswordInput):User
     }
 `
 

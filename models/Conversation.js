@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const ConversationSchema = new Schema({
-    members:[{
+    participants:[{
         typef: Schema.Types.ObjectId,
         ref:'user'
     }],

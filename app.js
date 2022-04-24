@@ -11,6 +11,7 @@ var apiRouter = require('./routes/api');
 var cloudinary = require('./utils/cloudinary')
 var schema = require('./graphql/schema')
 var resolvers = require('./graphql/resolvers')
+var context = require('./graphql/context')
 const { ApolloServer } = require('apollo-server-express');
 const { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-server-core');
 const { graphqlUploadExpress } = require('graphql-upload');
@@ -22,6 +23,7 @@ async function startServer() {
     {
       typeDefs:schema,
       resolvers,
+      context,
       plugins: [
         ApolloServerPluginDrainHttpServer({ httpServer }),
         ApolloServerPluginLandingPageGraphQLPlayground()

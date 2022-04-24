@@ -22,7 +22,7 @@ const Post = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'comment'
     }],
-    mode:['public','private','friends']
+    mode:['public','private','followers']
 },{
     timestamps:true
 })

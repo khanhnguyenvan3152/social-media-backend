@@ -18,7 +18,25 @@ const PostSchema = gql`
         createdAt: Date
         updatedAt: Date
     }
-
+    type PostPayload{
+        _id: String
+        image: String
+        publicImageId: String
+        comments: [CommentPayload]
+        like: [Like]
+        author: UserPayload
+        likes: [Like]
+        createdAt: String
+        updatedAt: String
+    }
+    type UserPostsPayload{
+        posts: [PostPayload]
+        count: String
+    }
+    type PostsPayload{
+        posts: [PostsPayload]!
+        count: String!
+    }
     input PostInput{
         content: String
         userId: String
@@ -29,14 +47,23 @@ const PostSchema = gql`
     input PostUpdateInput{
         content: String
     }
+    input DeletePostInput{
+        _id:ID
+    }
     extend type Query{
         posts: [Post]!
         post(_id:ID): Post!
+        getUserPosts(_id:ID):UserPostsPayload
+        getFollowedPosts(userId:ID,skip:Int,limit:Int):PostsPayload
+        #Get all posts
+        getPosts(authUserId:ID!,skip:Int,limit:Int):PostsPayload
+        #Get post by _id
+        getPost(_id:Int):PostPayload
     }
     extend type Mutation{
-        createNewPost(input: PostInput):Post
-        singleUpload(file: Upload):File!
-        updatePost(input: PostUpdateInput):Post
+        createNewPost(input: PostInput):PostPayload
+        updatePost(input: PostUpdateInput):PostPayload
+        deletePost(input: DeletePostInput):PostPayload
     }
 `
 module.exports = PostSchema

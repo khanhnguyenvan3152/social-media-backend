@@ -5,12 +5,6 @@ const User = new Schema({
     email: {
         type: Schema.Types.String,
         required: true,
-        validate: {
-            validator: function (v) {
-                return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v)
-            },
-            message: props => `${props.value} is not a valid email`
-        }
     },
     phone: {
         contryCode: {
@@ -42,7 +36,7 @@ const User = new Schema({
         default: 'https://iptc.org/wp-content/uploads/2018/05/avatar-anonymous-300x300.png'
     },
     birth: {
-        type: Schema.Types.Number
+        type: Schema.Types.Date
     },
     posts: [
         {
@@ -78,6 +72,7 @@ const User = new Schema({
             ref: 'collection'
         }
     ],
+    //Specify account active mode
     active: {
         type:Schema.Types.Boolean,
         default:true
@@ -85,6 +80,9 @@ const User = new Schema({
     resetPasswordToken: {
         type: Schema.Types.String,
         default: ''
+    },
+    resetPasswordTokenExpiry:{
+        type: Schema.Types.Date
     }
 }, { timestamps: true })
 

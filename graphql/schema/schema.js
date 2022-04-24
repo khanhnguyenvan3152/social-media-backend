@@ -3,10 +3,12 @@ const PostSchema = require('./postSchema')
 const UserSchema = require('./userSchema')
 const CollectionSchema = require('./collectionSchema')
 const NotificationSchema = require('./notificationSchema')
-const ConversationSchema = require('./collectionSchema')
+const ConversationSchema = require('./conversationSchema')
 const MessageSchema = require('./messageSchema')
 const FollowSchema = require('./followSchema')
 const LikeSchema = require('./likeSchema')
+const CommentSchema = require('./commentSchema')
+
 const schema = gql`
     scalar Date
     scalar JWT
@@ -19,14 +21,15 @@ const schema = gql`
     type Subscription {
         _empty: String
     }
+    ${ConversationSchema}
     ${PostSchema}
     ${UserSchema}
     ${CollectionSchema}
     ${NotificationSchema}
-    ${ConversationSchema}
     ${MessageSchema}
     ${FollowSchema}
     ${LikeSchema}
+    ${CommentSchema}
 `
 
 module.exports = schema

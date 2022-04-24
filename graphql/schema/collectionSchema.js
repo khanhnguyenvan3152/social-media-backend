@@ -10,8 +10,20 @@ const CollectionSchema = gql`
         name: String
         items: [Item]
     }
+    input CollectionInput{
+        name: String
+        ownerId: ID
+    }
+    input DeleteCollectionInput{
+        _id: ID
+    }
     extend type Query{
         getCollections(_userId:ID):[Collection]
+        getCollection(_id:ID):Collection
+    }
+    extend type Mutation{
+        createCollection(input:CollectionInput):Collection
+        deleteCollection(input:DeleteCollectionInput):Collection
     }
 `
 

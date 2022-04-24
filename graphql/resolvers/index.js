@@ -5,5 +5,4 @@ const {JWTResolver} = require('graphql-scalars')
 module.exports = [
     postResolver,
     userResolver,
-    fileResolver,
 ]

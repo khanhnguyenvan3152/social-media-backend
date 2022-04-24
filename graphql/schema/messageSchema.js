@@ -2,10 +2,16 @@ const {gql} = require('apollo-server-express')
 
 const MessageSchema = gql`
     type Message{
-        owner:User
+        sender:User
         content:String
         seen: Boolean
         createdAt: Date
+    }
+    type MessagePayload{
+        _id:ID
+        sender: User
+        content: String
+        createdAt: String
     }
     extend type Query{
         getMessage(_id:ID):Message
