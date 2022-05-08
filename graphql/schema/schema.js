@@ -23,12 +23,12 @@ const schema = gql`
     }
     ${ConversationSchema}
     ${PostSchema}
+    ${LikeSchema}
     ${UserSchema}
     ${CollectionSchema}
     ${NotificationSchema}
     ${MessageSchema}
     ${FollowSchema}
-    ${LikeSchema}
     ${CommentSchema}
 `
 

@@ -1,5 +1,4 @@
 const {gql} = require('apollo-server-express')
-const {GraphQLUpload,graphqlUploadExpress} = require('graphql-upload')
 const PostSchema = gql`
     scalar Upload
     type File{
@@ -28,6 +27,7 @@ const PostSchema = gql`
         likes: [Like]
         createdAt: String
         updatedAt: String
+        content: String
     }
     type UserPostsPayload{
         posts: [PostPayload]
@@ -40,9 +40,9 @@ const PostSchema = gql`
     input PostInput{
         content: String
         userId: String
-        images: [Upload]
+        image: Upload
+        imagePublicId: String
         mode: String
-        File: Upload
     }
     input PostUpdateInput{
         content: String

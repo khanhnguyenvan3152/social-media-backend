@@ -76,14 +76,7 @@ const typeDefs = gql`
     }
 
     scalar Upload
-    type File {
-        filename: String!
-        mimetype: String!
-        encoding: String!
-    }
-    input ImagesInput{
-        files: [Upload]
-    }
+ 
     type Mutation {
         createNewUser(input: UserInput):User
         createNewPost(input: PostInput):Post

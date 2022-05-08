@@ -1,5 +1,5 @@
 const cloudinary = require('cloudinary')
-const uuid = require('uuid').v5
+const uuid = require('uuid').v4
 cloudinary.config({
     cloud_name: 'dqc5eqdsj',
     api_key: '671822221848354',

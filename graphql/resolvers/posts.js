@@ -1,7 +1,9 @@
-const { UserInputError, ForbiddenError } = require('apollo-server-core');
+const { UserInputError, ForbiddenError, AuthenticationError } = require('apollo-server-core');
 const Image = require('../../models/Image');
 const Post = require('../../models/Post');
+const User = require('../../models/User')
 const { uploadToCloudinary } = require('../../utils/cloudinary');
+const {GraphQLUpload,graphqlUploadExpress} = require('graphql-upload')
 const resolvers = {
     Query: {
         posts: async function () {
@@ -14,9 +16,10 @@ const resolvers = {
         },
        
     },
+    Upload: GraphQLUpload,
     Mutation: {
-        createNewPost: async function ({ args, context, info, parent }) {
-            if(!context.user){
+        createNewPost: async function ( parent, args, context, info ) {
+            if(!context.authUser){
                 throw new AuthenticationError('You do not have permission!')
             }
             let { content, userId, image } = args.input
@@ -25,22 +28,19 @@ const resolvers = {
             if(image){
                 let {createReadStream}= await image
                 const stream = createReadStream()
-                const uploadImage = uploadToCloudinary(stream,'post')
+                const uploadImage = await uploadToCloudinary(stream,'post')
                 if(!uploadImage.secure_url) throw new Error('Image upload failed')
-                const img = new Image()
-                img.url = uploadImage.secure_url;
-                img.user = userId
-                await img.save()
                 imageURL = uploadImage.secure_url;
-                imagePublicId = uploadImage.publicId;
-                imageObjectId = img._id
+                imagePublicId = uploadImage.public_id;
             }
-            let post = new Post()
-            post.content = content
-            post.userId = userId
-            post.images.push(imageObjectId)
-            await post.save()
-            return post;
+            const newPost = await new Post({
+                content: content,
+                owner: userId,
+                image: imageURL,
+                imagePublicId: imagePublicId
+            }).save()
+            await User.findOneAndUpdate({_id: userId},{$push:{posts: newPost._id}})
+            return newPost;
         },
         updatePost: async function({args,context,info,parent}){
             let {content,postId,userId} = args.input

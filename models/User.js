@@ -15,6 +15,10 @@ const User = new Schema({
         }
 
     },
+    isOnline:{
+        types: Schema.Types.Boolean,
+        default: false
+    },
     avatar: String,
     avatarPublicId: String,
     cover: String,
@@ -31,6 +35,10 @@ const User = new Schema({
         type: Schema.Types.String,
         require: true
     },
+    likes: [{
+        type: Schema.Types.ObjectId,
+        ref: 'like'
+    }],
     avatar: {
         type: Schema.Types.String,
         default: 'https://iptc.org/wp-content/uploads/2018/05/avatar-anonymous-300x300.png'

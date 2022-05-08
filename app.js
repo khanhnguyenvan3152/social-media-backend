@@ -15,28 +15,46 @@ var context = require('./graphql/context')
 const { ApolloServer } = require('apollo-server-express');
 const { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-server-core');
 const { graphqlUploadExpress } = require('graphql-upload');
+const { verifyToken } = require('./utils/jwt');
 
 async function startServer() {
   const app = express();
   const httpServer = http.createServer(app);
   const server = new ApolloServer(
     {
-      typeDefs:schema,
+      typeDefs: schema,
       resolvers,
-      context,
+      context: ({ req, res }) => {
+        let user;
+        let token;
+        if (req.headers['authorization'] != null) {
+          console.log(req.headers['authorization'])
+          token = req.headers['authorization'].split(' ')[1]
+        }
+        if (token) {
+          user = verifyToken(token)
+        }
+        return {
+          req,
+          res,
+          authUser: user
+        }
+      },
       plugins: [
         ApolloServerPluginDrainHttpServer({ httpServer }),
         ApolloServerPluginLandingPageGraphQLPlayground()
       ]
     })
   await server.start()
-  server.applyMiddleware({app:app})
+  app.use(graphqlUploadExpress())
+  server.applyMiddleware({ app: app })
 
   // view engine setup
   app.set('views', path.join(__dirname, 'views'));
   app.set('view engine', 'ejs');
   app.use(cors({
-    origin: '*'
+    origin: 'http://localhost:3001',
+    credentials: true
   }))
   app.use(graphqlUploadExpress())
   app.use(logger('dev'));
@@ -55,7 +73,7 @@ async function startServer() {
 
   //Connect to database and initialize graphQL server
   db();
-  
+
 
   // error handler
   app.use(function (err, req, res, next) {
@@ -67,7 +85,7 @@ async function startServer() {
     res.status(err.status || 500);
     res.render('error');
   });
-  app.listen(3000,()=>{
+  app.listen(3000, () => {
     console.log('Server is running at port 3000')
   })
 

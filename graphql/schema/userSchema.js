@@ -18,6 +18,11 @@ const UserSchema = gql`
         follows: [User]
         followers: [User]
         avatar: String
+        avatarPublicId: String
+        likes: [Like]
+        cover: String
+        coverPublicId: String
+        isOnline: Boolean
         saved: [Collection]
         notifications: [Notification]
         resetPasswordToken: String
@@ -53,7 +58,7 @@ const UserSchema = gql`
         token: JWT
     }
     type UserPayload{
-        id: ID!
+        _id: ID!
         fullName: String
         lastName: String
         email: String
@@ -64,15 +69,24 @@ const UserSchema = gql`
         coverPublicId: String
         isOnline: Boolean
         posts: [PostPayload]
-        likes: [Like]
         followers: [Follow]
         followings: [Follow]
         notifications: [NotificationPayload]
+        newNotifications: [NotificationPayload]
+        newConversations: [ConversationPayload]
         conversations: [ConversationPayload]
         unseenMessage: Boolean
         createdAt: String
         updatedAt: String
-
+    }
+    input LoginInput{
+        email: String
+        password: String
+    }
+    type SignUpResponse{
+        user:UserPayload
+        success:Boolean
+        message:String
     }
     extend type Query{
         users:[User]!
@@ -83,12 +97,12 @@ const UserSchema = gql`
         getUserConversations(_id:ID):[User]
         getAuthUser: User
         userLikePost(_userId:ID,postId:ID):Boolean
-        login(email:String,password:String):LoginResponse
     }
     extend type Mutation{
-        createNewUser(input:UserInput!):User
+        createNewUser(input:UserInput!):SignUpResponse
         requestResetPassword(input:RequestResetPasswordInput!):User
         resetPassword(input: ResetPasswordInput):User
+        login(input:LoginInput):LoginResponse
     }
 `
 
