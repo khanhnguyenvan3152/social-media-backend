@@ -12,39 +12,40 @@ var cloudinary = require('./utils/cloudinary')
 var schema = require('./graphql/schema')
 var resolvers = require('./graphql/resolvers')
 var context = require('./graphql/context')
+const { createApolloServer } = require('./utils/apollo-server')
 const { ApolloServer } = require('apollo-server-express');
 const { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-server-core');
 const { graphqlUploadExpress } = require('graphql-upload');
 const { verifyToken } = require('./utils/jwt');
+const { makeExecutableSchema } = require('@graphql-tools/schema');
+const { WebSocketServer } = require('ws') 
+const { useServer } = require('graphql-ws/lib/use/ws') 
 
 async function startServer() {
   const app = express();
   const httpServer = http.createServer(app);
-  const server = new ApolloServer(
-    {
-      typeDefs: schema,
-      resolvers,
-      context: ({ req, res }) => {
-        let user;
-        let token;
-        if (req.headers['authorization'] != null) {
-          console.log(req.headers['authorization'])
-          token = req.headers['authorization'].split(' ')[1]
-        }
-        if (token) {
-          user = verifyToken(token)
-        }
-        return {
-          req,
-          res,
-          authUser: user
-        }
-      },
-      plugins: [
-        ApolloServerPluginDrainHttpServer({ httpServer }),
-        ApolloServerPluginLandingPageGraphQLPlayground()
-      ]
-    })
+
+  // Creating the WebSocket server
+  const wsServer = new WebSocketServer({
+    // This is the `httpServer` we created in a previous step.
+    server: httpServer,
+    // Pass a different path here if your ApolloServer serves at
+    // a different path.
+    path: '/graphql',
+  });
+
+  // Hand in the schema we just created and have the
+  // WebSocketServer start listening.
+  const serverCleanup = useServer({ schema }, wsServer);
+  const server = createApolloServer(schema, resolvers,[{
+    async serverWillStart() {
+      return {
+        async drainServer() {
+          await serverCleanup.dispose();
+        },
+      };
+    },
+  }]);
   await server.start()
   app.use(graphqlUploadExpress())
   server.applyMiddleware({ app: app })

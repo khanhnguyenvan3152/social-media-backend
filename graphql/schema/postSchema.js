@@ -10,10 +10,10 @@ const PostSchema = gql`
         _id: ID!
         content: String!
         images: [File]
-        owner: User!
+        author: User!
         timestamps: Int
         mode: String,
-        liked: [User]
+        likes: [User]
         createdAt: Date
         updatedAt: Date
     }

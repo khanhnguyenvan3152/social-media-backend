@@ -5,6 +5,10 @@ const NotificationSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user'
     },
+    user:{
+        type: Schema.Types.ObjectId,
+        ref: 'user'
+    },
     post:{
         type: Schema.Types.ObjectId,
         ref:'post'
@@ -17,7 +21,10 @@ const NotificationSchema = new Schema({
         type:Schema.Types.ObjectId,
         ref:'comment'
     },
-    action: Schema.Types.String
+    seen:{
+        type: Schema.Types.Boolean,
+        default: false
+    }
 },{
     timestamps:true
 })

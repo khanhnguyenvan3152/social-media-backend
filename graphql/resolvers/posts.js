@@ -35,7 +35,7 @@ const resolvers = {
             }
             const newPost = await new Post({
                 content: content,
-                owner: userId,
+                author: userId,
                 image: imageURL,
                 imagePublicId: imagePublicId
             }).save()
@@ -43,9 +43,10 @@ const resolvers = {
             return newPost;
         },
         updatePost: async function({args,context,info,parent}){
+            let user = content.authUser
             let {content,postId,userId} = args.input
             let post = await Post.findById(postId)
-            if(userId != post.user){
+            if(user._id != post.user){
                 throw new ForbiddenError('User does not have pemission to modify this post.')
             }
             if(!content){

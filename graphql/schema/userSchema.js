@@ -83,10 +83,20 @@ const UserSchema = gql`
         email: String
         password: String
     }
+    input UserAvatarInput{
+        avatar: Upload
+        imagePublicId: String
+        image: String
+        userId: ID
+    }
     type SignUpResponse{
         user:UserPayload
         success:Boolean
         message:String
+    }
+    type IsUserOnlinePayload{
+        userId: ID!
+        isOnline:Boolean
     }
     extend type Query{
         users:[User]!
@@ -102,7 +112,11 @@ const UserSchema = gql`
         createNewUser(input:UserInput!):SignUpResponse
         requestResetPassword(input:RequestResetPasswordInput!):User
         resetPassword(input: ResetPasswordInput):User
+        uploadUserAvatar(input: UserAvatarInput):UserPayload
         login(input:LoginInput):LoginResponse
+    }
+    extend type Subscription{
+        isUserOnline(authUserId: ID!,userID:ID!):IsUserOnlinePayload
     }
 `
 

@@ -7,6 +7,7 @@ const { JWTResolver } = require('graphql-scalars')
 const { tokenSecret, frontendURL } = require('../../config')
 const Post = require('../../models/Post')
 const { sendMail } = require('../../utils/mailer')
+const config = require('../../config')
 const RESET_PASSWORD_EXPIRY = 3600000
 const AUTH_TOKEN_EXPIRY = '1y'
 const resolvers = {
@@ -17,7 +18,17 @@ const resolvers = {
             const user = await User.findOneAndUpdate({ email: authUser.email }, { isOnline: true })
             .populate({ path: 'posts',options:{sort:{createdAt:'desc'}} })
             .populate('followers')
-          
+            .populate('follows')
+            .populate({
+                path: 'notifications',
+                populate: [
+                    { path: 'author' },
+                    { path: 'follow' },
+                    { path: 'like', populate: { path: 'post' } },
+                    { path: 'comment', populate: { path: 'post' } },
+                ],
+                match: { seen: false },
+            });
             user.newNotifications = user.newNotifications
             console.log(user)
             return user;
@@ -119,7 +130,32 @@ const resolvers = {
             }
         },
         resetPassword: async function (parent, args, context, info) {
-
+            const {email,token,password} = args.input
+            if(!password){
+                throw new Error('Enter password or confirm password.');
+            }
+            if(password.length<6){
+                throw new Error('Password must be at least 6 characters long.')
+            }
+            //Check if user is exist and token is valid
+            const user = await User.findOne({
+                email: email,
+                resetPasswordToken:token,
+                resetPasswordTokenExpiry: {
+                    $gte: Date.now() - RESET_PASSWORD_EXPIRY
+                }
+            })
+            if(!user){
+                throw new Error('This token is either invalid or expired!')
+            }
+            //Update password, reset token and its expiry
+            user.resetPasswordToken = '',
+            user.resetPasswordTokenExpiry = '';
+            user.password = password;
+            await user.save()
+            return {
+                token: generateToken(user,config.tokenSecret,config.tokenExpiry)
+            }
         },
         login: async function (parent, args, context, info) {
             let { email, password } = args.input
