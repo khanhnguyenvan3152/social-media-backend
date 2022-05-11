@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken')
 const { JWTResolver } = require('graphql-scalars')
 const { tokenSecret, frontendURL } = require('../../config')
 const Post = require('../../models/Post')
+const Notification = require('../../models/Notification')
 const { sendMail } = require('../../utils/mailer')
 const config = require('../../config')
 const RESET_PASSWORD_EXPIRY = 3600000
@@ -16,29 +17,31 @@ const resolvers = {
             const { authUser } = context
             if (!authUser) return null;
             const user = await User.findOneAndUpdate({ email: authUser.email }, { isOnline: true })
-            .populate({ path: 'posts',options:{sort:{createdAt:'desc'}} })
-            .populate('followers')
-            .populate('follows')
-            .populate({
-                path: 'notifications',
-                populate: [
-                    { path: 'author' },
-                    { path: 'follow' },
-                    { path: 'like', populate: { path: 'post' } },
-                    { path: 'comment', populate: { path: 'post' } },
-                ],
-                match: { seen: false },
-            });
+                .populate({ path: 'posts', options: { sort: { createdAt: 'desc' } } })
+                .populate('followers')
+                .populate('follows')
+                .populate({
+                    path: 'notifications',
+                    populate: [
+                        { path: 'author' },
+                        { path: 'follow' },
+                        { path: 'like', populate: { path: 'post' } },
+                        { path: 'comment', populate: { path: 'post' } },
+                    ],
+                    match: { seen: false },
+                });
             user.newNotifications = user.newNotifications
             console.log(user)
             return user;
+
         },
         users: async function () {
             let result = await User.find().populate('follows')
             return result
         },
         getUserById: async function (parent, args, context, info) {
-            let result = await User.findById(args._id)
+            console.log(args)
+            let result = await User.findById(args._id).populate('follows').populate('followers').populate('posts')
             return result;
         },
         getUserByEmail: async function (parent, args, context, info) {
@@ -130,31 +133,31 @@ const resolvers = {
             }
         },
         resetPassword: async function (parent, args, context, info) {
-            const {email,token,password} = args.input
-            if(!password){
+            const { email, token, password } = args.input
+            if (!password) {
                 throw new Error('Enter password or confirm password.');
             }
-            if(password.length<6){
+            if (password.length < 6) {
                 throw new Error('Password must be at least 6 characters long.')
             }
             //Check if user is exist and token is valid
             const user = await User.findOne({
                 email: email,
-                resetPasswordToken:token,
+                resetPasswordToken: token,
                 resetPasswordTokenExpiry: {
                     $gte: Date.now() - RESET_PASSWORD_EXPIRY
                 }
             })
-            if(!user){
+            if (!user) {
                 throw new Error('This token is either invalid or expired!')
             }
             //Update password, reset token and its expiry
             user.resetPasswordToken = '',
-            user.resetPasswordTokenExpiry = '';
+                user.resetPasswordTokenExpiry = '';
             user.password = password;
             await user.save()
             return {
-                token: generateToken(user,config.tokenSecret,config.tokenExpiry)
+                token: generateToken(user, config.tokenSecret, config.tokenExpiry)
             }
         },
         login: async function (parent, args, context, info) {

@@ -8,7 +8,8 @@ const NotificationSchema = gql`
     }
     type Notification{
         _id: ID!
-        from: User!
+        author: User!
+        user: User!
         post: ID!
         like: Like
         Follow: Follow
@@ -61,10 +62,10 @@ const NotificationSchema = gql`
     extend type Mutation{
         createNotification(input: CreateNotificationInput):Notification
         deleteNotification(input: DeleteNotificationInput):Notification
-        updateNotification(input: UpdateNotificationSeenInput):Boolean
+        updateNotificationSeen(input: UpdateNotificationSeenInput):Boolean
     }
     extend type Subscription{
-        noticationCreateOrDeleted: NotificationCreatedOrDeletedPayload
+        notificationCreatedOrDeleted: NotificationCreatedOrDeletedPayload
     }
 `
 

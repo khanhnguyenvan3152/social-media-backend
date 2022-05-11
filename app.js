@@ -12,12 +12,10 @@ var cloudinary = require('./utils/cloudinary')
 var schema = require('./graphql/schema')
 var resolvers = require('./graphql/resolvers')
 var context = require('./graphql/context')
+const Models = require('./models')
 const { createApolloServer } = require('./utils/apollo-server')
-const { ApolloServer } = require('apollo-server-express');
 const { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-server-core');
 const { graphqlUploadExpress } = require('graphql-upload');
-const { verifyToken } = require('./utils/jwt');
-const { makeExecutableSchema } = require('@graphql-tools/schema');
 const { WebSocketServer } = require('ws') 
 const { useServer } = require('graphql-ws/lib/use/ws') 
 
@@ -45,7 +43,10 @@ async function startServer() {
         },
       };
     },
-  }]);
+  },
+  ApolloServerPluginLandingPageGraphQLPlayground,
+  ApolloServerPluginDrainHttpServer({httpServer})
+]);
   await server.start()
   app.use(graphqlUploadExpress())
   server.applyMiddleware({ app: app })

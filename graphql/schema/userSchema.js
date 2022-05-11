@@ -59,7 +59,7 @@ const UserSchema = gql`
     }
     type UserPayload{
         _id: ID!
-        fullName: String
+        firstName: String
         lastName: String
         email: String
         password: String
@@ -100,12 +100,12 @@ const UserSchema = gql`
     }
     extend type Query{
         users:[User]!
-        getUserById(_id:ID): User!
+        getUserById(_id:ID): UserPayload!
         getUserByEmail(email:String):User
         getUserFollowers(_id:ID):[User]
         getUserFollow(_id:ID):[User]
         getUserConversations(_id:ID):[User]
-        getAuthUser: User
+        getAuthUser: UserPayload
         userLikePost(_userId:ID,postId:ID):Boolean
     }
     extend type Mutation{

@@ -1,6 +1,7 @@
 const Notification = require('../../models/Notification')
 const User = require('../../models/User')
 const { pubSub } = require('../../utils/apollo-server')
+const {withFilter} = require('graphql-subscriptions')
 const resolvers = {
     Query: {
         getUserNotifications: async (parent, args, context, info) => {
@@ -51,7 +52,7 @@ const resolvers = {
 
         deleteNotification: async (parent, args, context, info) => {
             let {_id} = args.input
-            let notification = await Notification.findByIdAndRemove(notiId);
+            let notification = await Notification.findByIdAndRemove(_id);
 
             // Delete notification from users collection
             await User.findOneAndUpdate({ _id: notification.user }, { $pull: { notifications: notification.id } });
@@ -97,3 +98,5 @@ const resolvers = {
         },
     }
 }
+
+module.exports = resolvers

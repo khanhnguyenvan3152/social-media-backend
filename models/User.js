@@ -19,10 +19,6 @@ const User = new Schema({
         types: Schema.Types.Boolean,
         default: false
     },
-    avatar: String,
-    avatarPublicId: String,
-    cover: String,
-    coverPublicId: String,
     password: {
         type: Schema.Types.String,
         required: true
@@ -41,8 +37,14 @@ const User = new Schema({
     }],
     avatar: {
         type: Schema.Types.String,
-        default: 'https://iptc.org/wp-content/uploads/2018/05/avatar-anonymous-300x300.png'
+        default: 'https://res.cloudinary.com/dqc5eqdsj/image/upload/v1651528797/avatar/avatar-anonymous_iwxxqr.png'
     },
+    avatarPublicId: String,
+    cover: {
+        type: Schema.Types.String,
+        default: "https://img.freepik.com/free-vector/hand-painted-watercolor-pastel-sky-background_23-2148902771.jpg?w=2000"
+    },
+    coverPublicId: String,
     birth: {
         type: Schema.Types.Date
     },
@@ -52,7 +54,7 @@ const User = new Schema({
             ref: 'post'
         }
     ],
-    notfications: [
+    notifications: [
         {
             type: Schema.Types.ObjectId,
             ref: 'notification'
