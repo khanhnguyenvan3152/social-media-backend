@@ -61,7 +61,33 @@ const resolvers = {
             let result = await Post.findById(postId).select('liked')
             return result.includes(userId)
         },
-
+        getUserPosts: async function (parent, args, content, info) {
+            let { userId, skip, limit } = args
+            let query = { author: userId }
+            let count = await Post.find(query).countDocuments()
+            let posts = await Post.find(query)
+                .populate({
+                    path: 'author',
+                    populate: [
+                        { path: 'follows' },
+                        { path: 'followers' },
+                        {
+                            path: 'notifications',
+                            populate: [{ path: 'author' }, { path: 'follow' }, { path: 'like' }, { path: 'comment' }],
+                        },
+                    ],
+                })
+                .populate('likes')
+                .populate({
+                    path: 'comments',
+                    options: { sort: { createdAt: 'desc' } },
+                    populate: { path: 'author' },
+                })
+                .skip(skip)
+                .limit(limit)
+                .sort({ createdAt: 'desc' });
+            return {posts,count};
+        }
     },
     Mutation: {
         createNewUser: async (parent, args, context, info) => {

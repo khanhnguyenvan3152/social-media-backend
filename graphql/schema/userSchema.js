@@ -106,7 +106,7 @@ const UserSchema = gql`
         getUserFollow(_id:ID):[User]
         getUserConversations(_id:ID):[User]
         getAuthUser: UserPayload
-        userLikePost(_userId:ID,postId:ID):Boolean
+        userLikePost(userId:ID,postId:ID):Boolean
     }
     extend type Mutation{
         createNewUser(input:UserInput!):SignUpResponse
