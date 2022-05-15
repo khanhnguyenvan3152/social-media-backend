@@ -20,7 +20,7 @@ const PostSchema = gql`
     type PostPayload{
         _id: String
         image: String
-        publicImageId: String
+        imagePublicId: String
         comments: [CommentPayload]
         like: [Like]
         author: UserPayload

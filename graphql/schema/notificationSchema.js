@@ -39,7 +39,7 @@ const NotificationSchema = gql`
         like: LikePayload
         post: PostPayload
         comment: CommentPayload
-        from: [UserPayload]
+        author: [UserPayload]
         follow: Follow
         createdAt: String
     }

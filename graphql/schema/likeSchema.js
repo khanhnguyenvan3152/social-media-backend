@@ -5,14 +5,14 @@ const LikeSchema = gql`
     type Like{
         _id:ID
         post: Post!
-        from: User
+        user: User
         createAt: String
     }
     #Payload
     type LikePayload{
         _id:ID
         post: PostPayload
-        from: UserPayload
+        user: UserPayload
         createAt:String
     }
     #Inputs

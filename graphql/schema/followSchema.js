@@ -11,5 +11,15 @@ const FollowSchema = gql`
         userId: ID,
         followerId: ID!
     }
+    type FollowPayload{
+        user: [UserPayload]
+        follow: [UserPayload]
+        createdAt: Date
+    }
+  
+    extend type Mutation{
+        followUser(userId:ID):[FollowPayload]
+        unFollowUser(userId:ID):[FollowPayload]
+    }
 `
 module.exports = FollowSchema

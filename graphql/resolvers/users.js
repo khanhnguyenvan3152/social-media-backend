@@ -73,7 +73,7 @@ const resolvers = {
                         { path: 'followers' },
                         {
                             path: 'notifications',
-                            populate: [{ path: 'author' }, { path: 'follow' }, { path: 'like' }, { path: 'comment' }],
+                            populate: [{ path: 'author' }, { path: 'follows' }, { path: 'likes' }, { path: 'comments' }],
                         },
                     ],
                 })
