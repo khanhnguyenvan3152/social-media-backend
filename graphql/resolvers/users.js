@@ -86,12 +86,24 @@ const resolvers = {
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: 'desc' });
-            return {posts,count};
+            return { posts, count };
+        },
+        searchUsers: async function (parent, args, context, info) {
+            let { searchQuery } = args
+            if (!searchQuery) {
+                return []
+            }
+            let users = await User.find({
+                $or: [
+                    { firstName: new RegExp(searchQuery, 'i') },
+                    { lastName: new RegExp(searchQuery, 'i') },
+                ]
+            })
+            return users;
         }
     },
     Mutation: {
         createNewUser: async (parent, args, context, info) => {
-            console.log(args)
             let { email, password, phoneNumber, gender, firstName, lastName } = args.input;
             try {
                 let checkEmailExist = await User.exists({ email: email })
