@@ -70,7 +70,7 @@ const UserSchema = gql`
         isOnline: Boolean
         posts: [PostPayload]
         followers: [Follow]
-        followings: [Follow]
+        follows: [Follow]
         notifications: [NotificationPayload]
         newNotifications: [NotificationPayload]
         newConversations: [ConversationPayload]

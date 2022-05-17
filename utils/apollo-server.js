@@ -17,7 +17,7 @@ const checkAuthorization = (token) => {
     })
 }
 
-exports.createApolloServer = (schema, resolvers,plugins) => {
+exports.createApolloServer = (schema, resolvers, plugins) => {
     return new ApolloServer({
         typeDefs: schema,
         resolvers,
@@ -25,7 +25,6 @@ exports.createApolloServer = (schema, resolvers,plugins) => {
             let user;
             let token;
             if (req.headers['authorization'] != null) {
-                console.log(req.headers['authorization'])
                 token = req.headers['authorization'].split(' ')[1]
             }
             if (token) {
@@ -37,7 +36,7 @@ exports.createApolloServer = (schema, resolvers,plugins) => {
                 authUser: user
             }
         },
-        plugins:plugins,
+        plugins: plugins,
         subscriptions: {
             onConnect: async (connectionParams, webSocket) => {
                 if (connectionParams.authorization) {

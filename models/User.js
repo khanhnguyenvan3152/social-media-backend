@@ -15,7 +15,7 @@ const User = new Schema({
         }
 
     },
-    isOnline:{
+    isOnline: {
         types: Schema.Types.Boolean,
         default: false
     },
@@ -63,18 +63,20 @@ const User = new Schema({
     follows: [
         {
             type: Schema.Types.ObjectId,
-            ref: 'user'
+            ref: 'user',
+            unique: true
         }
     ],
     followers: [
         {
             type: Schema.Types.ObjectId,
-            ref: 'user'
+            ref: 'user',
+            unique: true
         }
     ],
-    conversations:[{
+    conversations: [{
         type: Schema.Types.ObjectId,
-        ref:'conversation'
+        ref: 'conversation'
     }],
     saved: [
         {
@@ -84,14 +86,14 @@ const User = new Schema({
     ],
     //Specify account active mode
     active: {
-        type:Schema.Types.Boolean,
-        default:true
+        type: Schema.Types.Boolean,
+        default: true
     },
     resetPasswordToken: {
         type: Schema.Types.String,
         default: ''
     },
-    resetPasswordTokenExpiry:{
+    resetPasswordTokenExpiry: {
         type: Schema.Types.Date
     }
 }, { timestamps: true })

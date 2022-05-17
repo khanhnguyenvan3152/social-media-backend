@@ -1,4 +1,4 @@
-const {gql} = require('apollo-server-express')
+const { gql } = require('apollo-server-express')
 
 const FollowSchema = gql`
     type Follow{
@@ -18,8 +18,8 @@ const FollowSchema = gql`
     }
   
     extend type Mutation{
-        followUser(userId:ID):[FollowPayload]
-        unFollowUser(userId:ID):[FollowPayload]
+        followUser(userId:ID):FollowPayload
+        unFollowUser(userId:ID):FollowPayload
     }
 `
 module.exports = FollowSchema
