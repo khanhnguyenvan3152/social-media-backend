@@ -32,7 +32,7 @@ const UserSchema = gql`
         gender:String
         active: Boolean
         birth: Date
-        
+        biography: String
     }
     input UserInput{
         email:String
@@ -78,6 +78,8 @@ const UserSchema = gql`
         unseenMessage: Boolean
         createdAt: String
         updatedAt: String
+        biography: String
+
     }
     input LoginInput{
         email: String

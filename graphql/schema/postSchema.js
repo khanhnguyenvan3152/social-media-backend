@@ -1,4 +1,4 @@
-const {gql} = require('apollo-server-express')
+const { gql } = require('apollo-server-express')
 const PostSchema = gql`
     scalar Upload
     type File{
@@ -8,7 +8,7 @@ const PostSchema = gql`
     }
     type Post {
         _id: ID!
-        content: String!
+        content: String
         images: [File]
         author: User!
         timestamps: Int
@@ -18,7 +18,7 @@ const PostSchema = gql`
         updatedAt: Date
     }
     type PostPayload{
-        _id: String
+        _id: ID
         image: String
         imagePublicId: String
         comments: [CommentPayload]
@@ -34,8 +34,8 @@ const PostSchema = gql`
         count: String
     }
     type PostsPayload{
-        posts: [PostsPayload]!
-        count: String!
+        posts: [PostPayload]
+        count: Int
     }
     input PostInput{
         content: String
@@ -54,7 +54,7 @@ const PostSchema = gql`
         posts: [Post]!
         post(_id:ID): Post!
         getUserPosts(userId:ID,skip:Int,limit:Int):UserPostsPayload
-        getFollowedPosts(userId:ID,skip:Int,limit:Int):PostsPayload
+        getFollowedPosts(userId:ID):PostsPayload
         #Get all posts
         getPosts(authUserId:ID!,skip:Int,limit:Int):PostsPayload
         #Get post by _id

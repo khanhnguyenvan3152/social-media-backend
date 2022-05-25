@@ -18,8 +18,8 @@ const FollowSchema = gql`
     }
   
     extend type Mutation{
-        followUser(userId:ID):FollowPayload
-        unFollowUser(userId:ID):FollowPayload
+        followUser(userId:ID):Boolean
+        unFollowUser(userId:ID):Boolean
     }
 `
 module.exports = FollowSchema

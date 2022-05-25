@@ -3,33 +3,42 @@ const Image = require('../../models/Image');
 const Post = require('../../models/Post');
 const User = require('../../models/User')
 const { uploadToCloudinary } = require('../../utils/cloudinary');
-const {GraphQLUpload,graphqlUploadExpress} = require('graphql-upload')
+const { GraphQLUpload, graphqlUploadExpress } = require('graphql-upload')
 const resolvers = {
     Query: {
         posts: async function () {
             let result = await Post.find({})
             return result;
         },
-        post: async function ({ args, context, info, parent }) {
+        post: async function (parent, args, context, info) {
             let result = await Post.findById(args._id)
             return result
         },
-       
+        getFollowedPosts: async function (parent, args, context, info) {
+            try {
+                let { userId } = args
+                let followedUsers = await User.findById(userId)
+                let posts = await Post.find({ author: { $in: followedUsers.follows } }).sort({ createdAt: 'desc' }).populate("author")
+                return { posts, count: posts.length };
+            } catch (err) {
+                console.log(err)
+            }
+        }
     },
     Upload: GraphQLUpload,
     Mutation: {
-        createNewPost: async function ( parent, args, context, info ) {
-            if(!context.authUser){
+        createNewPost: async function (parent, args, context, info) {
+            if (!context.authUser) {
                 throw new AuthenticationError('You do not have permission!')
             }
             let { content, userId, image } = args.input
-            if(!content) throw new UserInputError("Post's content is required")
-            let imageURL,imagePublicId,imageObjectId
-            if(image){
-                let {createReadStream}= await image
+            if (!content) throw new UserInputError("Post's content is required")
+            let imageURL, imagePublicId, imageObjectId
+            if (image) {
+                let { createReadStream } = await image
                 const stream = createReadStream()
-                const uploadImage = await uploadToCloudinary(stream,'post')
-                if(!uploadImage.secure_url) throw new Error('Image upload failed')
+                const uploadImage = await uploadToCloudinary(stream, 'post')
+                if (!uploadImage.secure_url) throw new Error('Image upload failed')
                 imageURL = uploadImage.secure_url;
                 imagePublicId = uploadImage.public_id;
             }
@@ -39,17 +48,17 @@ const resolvers = {
                 image: imageURL,
                 imagePublicId: imagePublicId
             }).save()
-            await User.findOneAndUpdate({_id: userId},{$push:{posts: newPost._id}})
+            await User.findOneAndUpdate({ _id: userId }, { $push: { posts: newPost._id } })
             return newPost;
         },
-        updatePost: async function({args,context,info,parent}){
+        updatePost: async function ({ args, context, info, parent }) {
             let user = content.authUser
-            let {content,postId,userId} = args.input
+            let { content, postId, userId } = args.input
             let post = await Post.findById(postId)
-            if(user._id != post.user){
+            if (user._id != post.user) {
                 throw new ForbiddenError('User does not have pemission to modify this post.')
             }
-            if(!content){
+            if (!content) {
                 throw new UserInputError('Must provide update content.')
             }
             post.content = content;

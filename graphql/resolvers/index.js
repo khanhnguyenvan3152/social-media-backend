@@ -4,11 +4,13 @@ const fileResolver = require('./files')
 const likeResolver = require('./likes')
 const notificationResolver = require('./notifications')
 const followResolver = require('./follows')
+const commentResolver = require('./comments')
 const { JWTResolver } = require('graphql-scalars')
 module.exports = [
     postResolver,
     userResolver,
     likeResolver,
     notificationResolver,
-    followResolver
+    followResolver,
+    commentResolver
 ]

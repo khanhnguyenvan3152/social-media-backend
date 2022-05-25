@@ -64,16 +64,22 @@ const User = new Schema({
         {
             type: Schema.Types.ObjectId,
             ref: 'user',
-            unique: true
         }
     ],
     followers: [
         {
             type: Schema.Types.ObjectId,
             ref: 'user',
-            unique: true
         }
     ],
+    followsCount: {
+        type: Schema.Types.Number,
+        default: 0
+    },
+    followersCount: {
+        type: Schema.Types.Number,
+        default: 0
+    },
     conversations: [{
         type: Schema.Types.ObjectId,
         ref: 'conversation'
@@ -95,6 +101,10 @@ const User = new Schema({
     },
     resetPasswordTokenExpiry: {
         type: Schema.Types.Date
+    },
+    biography: {
+        type: Schema.Types.String,
+        defautlt: ""
     }
 }, { timestamps: true })
 

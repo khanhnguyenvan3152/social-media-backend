@@ -31,7 +31,6 @@ const resolvers = {
                     match: { seen: false },
                 });
             user.newNotifications = user.newNotifications
-            console.log(user)
             return user;
 
         },
@@ -105,6 +104,7 @@ const resolvers = {
     Mutation: {
         createNewUser: async (parent, args, context, info) => {
             let { email, password, phoneNumber, gender, firstName, lastName } = args.input;
+            console.log(args)
             try {
                 let checkEmailExist = await User.exists({ email: email })
                 if (checkEmailExist) {
@@ -138,7 +138,6 @@ const resolvers = {
             }
             catch (err) {
                 console.log(err)
-                console.log(err.errors)
                 //Throw error for apollo server message response
                 throw new UserInputError(Object.values(err.errors)[0])
             }

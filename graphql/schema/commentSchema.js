@@ -25,8 +25,8 @@ const CommentSchema = gql`
         _id: ID
     }
     #Mutations
-    extend type Query{
-        createComment(input: CommentInput):Comment
+    extend type Mutation{
+        createComment(postId:ID,content:String,):Comment
         deleteComment(input: DeleteLikeInput):Comment
     }
 `
