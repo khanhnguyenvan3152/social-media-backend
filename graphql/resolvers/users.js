@@ -18,8 +18,19 @@ const resolvers = {
             if (!authUser) return null;
             const user = await User.findOneAndUpdate({ email: authUser.email }, { isOnline: true })
                 .populate({ path: 'posts', options: { sort: { createdAt: 'desc' } } })
-                .populate('followers')
-                .populate('follows')
+                .populate({
+                    path: 'follows',
+                    populate: [
+                        { path: "follow" },
+                        { path: "user" }
+                    ]
+                }).populate({
+                    path: 'followers',
+                    populate: [
+                        { path: "follow" },
+                        { path: "user" }
+                    ]
+                })
                 .populate({
                     path: 'notifications',
                     populate: [
@@ -29,7 +40,7 @@ const resolvers = {
                         { path: 'comment', populate: { path: 'post' } },
                     ],
                     match: { seen: false },
-                });
+                }).populate("likes")
             user.newNotifications = user.newNotifications
             return user;
 
@@ -39,8 +50,17 @@ const resolvers = {
             return result
         },
         getUserById: async function (parent, args, context, info) {
-            console.log(args)
-            let result = await User.findById(args._id).populate('follows').populate('followers').populate('posts')
+            let result = await User.findById(args._id).populate({
+                path: 'follows',
+                populate: [
+                    { path: "follow" }
+                ]
+            }).populate({
+                path: 'followers',
+                populate: [
+                    { path: "user" }
+                ]
+            }).populate('posts')
             return result;
         },
         getUserByEmail: async function (parent, args, context, info) {
@@ -68,11 +88,27 @@ const resolvers = {
                 .populate({
                     path: 'author',
                     populate: [
-                        { path: 'follows' },
-                        { path: 'followers' },
+                        {
+                            path: 'follows',
+                            populate: [
+                                { path: "follow" }
+                            ]
+                        },
+                        {
+                            path: 'followers',
+                            populate: [
+                                { path: "user" }
+                            ]
+                        },
                         {
                             path: 'notifications',
-                            populate: [{ path: 'author' }, { path: 'follows' }, { path: 'likes' }, { path: 'comments' }],
+                            populate: [
+                                {
+                                    path: 'author'
+                                },
+                                { path: 'follows' },
+                                { path: 'likes' },
+                                { path: 'comments' }],
                         },
                     ],
                 })
@@ -85,20 +121,28 @@ const resolvers = {
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: 'desc' });
+            console.log(posts)
             return { posts, count };
         },
         searchUsers: async function (parent, args, context, info) {
-            let { searchQuery } = args
-            if (!searchQuery) {
-                return []
+            try {
+                let { searchQuery, offset, limit } = args
+                const userId = context.authUser._id
+                if (!searchQuery) {
+                    return []
+                }
+                let users = await User.find({
+                    $or: [
+                        { firstName: new RegExp(searchQuery, 'i') },
+                        { lastName: new RegExp(searchQuery, 'i') },
+                    ],
+                    id: { $ne: userId }
+                }).skip(offset).limit(limit)
+                return { users, offset, limit, count: users.length };
+            } catch (err) {
+                console.log(err)
+                throw new ApolloError("Search failed")
             }
-            let users = await User.find({
-                $or: [
-                    { firstName: new RegExp(searchQuery, 'i') },
-                    { lastName: new RegExp(searchQuery, 'i') },
-                ]
-            })
-            return users;
         }
     },
     Mutation: {

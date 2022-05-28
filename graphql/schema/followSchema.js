@@ -12,8 +12,9 @@ const FollowSchema = gql`
         followerId: ID!
     }
     type FollowPayload{
-        user: [UserPayload]
-        follow: [UserPayload]
+        _id: ID
+        user: UserPayload
+        follow: UserPayload
         createdAt: Date
     }
   

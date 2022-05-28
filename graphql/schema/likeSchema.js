@@ -1,4 +1,4 @@
-const {gql} = require('apollo-server-express')
+const { gql } = require('apollo-server-express')
 
 const LikeSchema = gql`
     #Define type
@@ -30,9 +30,9 @@ const LikeSchema = gql`
     #Mutations
     extend type Mutation{
         #New like action from user
-        createLike(input: LikeInput):Like
+        createLike(postId:ID):Like
         #Remove like
-        deleteLike(input: DeleteLikeInput):Like
+        deleteLike(postId:ID,likeID:ID):Like
     }
 `
 module.exports = LikeSchema

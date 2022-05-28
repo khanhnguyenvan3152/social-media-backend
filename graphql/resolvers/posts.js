@@ -1,4 +1,4 @@
-const { UserInputError, ForbiddenError, AuthenticationError } = require('apollo-server-core');
+const { UserInputError, ForbiddenError, AuthenticationError, ApolloError } = require('apollo-server-core');
 const Image = require('../../models/Image');
 const Post = require('../../models/Post');
 const User = require('../../models/User')
@@ -17,12 +17,44 @@ const resolvers = {
         getFollowedPosts: async function (parent, args, context, info) {
             try {
                 let { userId } = args
-                let followedUsers = await User.findById(userId)
-                let posts = await Post.find({ author: { $in: followedUsers.follows } }).sort({ createdAt: 'desc' }).populate("author")
+                let result = await User.findById(userId).populate({
+                    path: "follows",
+                })
+                let followedUsers = []
+                result.follows.reduce((followedUsers, follow) => followedUsers.push(follow.follow), followedUsers)
+                let posts = await Post.find({ author: { $in: followedUsers } }).sort({ createdAt: 'desc' }).populate("author")
+                console.log(posts)
                 return { posts, count: posts.length };
             } catch (err) {
                 console.log(err)
+                throw new ApolloError("Cannot get posts")
             }
+        },
+        getPostComments: async function (parent, args, context, info) {
+            const { postId, limit, offset } = args
+            console.log(1)
+            let result = await Post.findById(postId)
+                .populate("comments")
+                .populate({
+                    path: "comments",
+                    populate: [
+                        "author"
+                    ]
+                })
+            console.log(comments)
+            return comments;
+        },
+        searchPosts: async function (parent, args, context, info) {
+            const { query, offset, limit } = args
+            console.log(query)
+            let result = await Post.find()
+                .populate("author", { firstName: 1, lastName: 1, avatar: 1, createdAt: 1 }
+                )
+                .or([{ content: { $regex: new RegExp(query, "i") } },
+                ])
+                .skip(offset).limit(limit)
+            console.log(result)
+            return { posts: result, offset, limit, count: result.length }
         }
     },
     Upload: GraphQLUpload,
@@ -51,9 +83,9 @@ const resolvers = {
             await User.findOneAndUpdate({ _id: userId }, { $push: { posts: newPost._id } })
             return newPost;
         },
-        updatePost: async function ({ args, context, info, parent }) {
+        updatePost: async function (parent, args, context, info) {
             let user = content.authUser
-            let { content, postId, userId } = args.input
+            let { content, postId } = args.input
             let post = await Post.findById(postId)
             if (user._id != post.user) {
                 throw new ForbiddenError('User does not have pemission to modify this post.')

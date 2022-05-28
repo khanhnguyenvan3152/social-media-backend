@@ -50,6 +50,12 @@ const PostSchema = gql`
     input DeletePostInput{
         _id:ID
     }
+    type SearchPayload{
+        posts:[PostPayload]
+        offset: Int
+        limit: Int
+        count: Int
+    }
     extend type Query{
         posts: [Post]!
         post(_id:ID): Post!
@@ -59,6 +65,8 @@ const PostSchema = gql`
         getPosts(authUserId:ID!,skip:Int,limit:Int):PostsPayload
         #Get post by _id
         getPost(_id:Int):PostPayload
+        getPostComments(postId:ID,offset:Int,limit:Int):[CommentPayload]
+        searchPosts(query:String,offset:Int,limit:Int):SearchPayload
     }
     extend type Mutation{
         createNewPost(input: PostInput):PostPayload

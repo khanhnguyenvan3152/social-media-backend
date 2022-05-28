@@ -63,20 +63,20 @@ const User = new Schema({
     follows: [
         {
             type: Schema.Types.ObjectId,
-            ref: 'user',
+            ref: 'follow',
         }
     ],
     followers: [
         {
             type: Schema.Types.ObjectId,
-            ref: 'user',
+            ref: 'follow',
         }
     ],
-    followsCount: {
+    followCount: {
         type: Schema.Types.Number,
         default: 0
     },
-    followersCount: {
+    followerCount: {
         type: Schema.Types.Number,
         default: 0
     },

@@ -17,6 +17,8 @@ const UserSchema = gql`
         posts: [Post]
         follows: [User]
         followers: [User]
+        followCount: Int
+        followerCount: Int
         avatar: String
         avatarPublicId: String
         likes: [Like]
@@ -66,11 +68,14 @@ const UserSchema = gql`
         avatar: String
         avatarPublicId: String
         cover: String
+        likes: [LikePayload]
         coverPublicId: String
         isOnline: Boolean
         posts: [PostPayload]
-        followers: [Follow]
-        follows: [Follow]
+        followers: [FollowPayload]
+        follows: [FollowPayload]
+        followCount: Int
+        followerCount: Int
         notifications: [NotificationPayload]
         newNotifications: [NotificationPayload]
         newConversations: [ConversationPayload]
@@ -100,6 +105,12 @@ const UserSchema = gql`
         userId: ID!
         isOnline:Boolean
     }
+    type SearchUserPayload{
+        users: [UserPayload]
+        count: Int
+        offset: Int
+        limit: Int
+    }
     extend type Query{
         users:[User]!
         getUserById(_id:ID): UserPayload!
@@ -109,7 +120,7 @@ const UserSchema = gql`
         getUserConversations(_id:ID):[User]
         getAuthUser: UserPayload
         userLikePost(userId:ID,postId:ID):Boolean
-        searchUsers(searchQuery:String): [UserPayload]
+        searchUsers(searchQuery:String,offset:Int,limit:Int): SearchUserPayload
     }
     extend type Mutation{
         createNewUser(input:UserInput!):SignUpResponse

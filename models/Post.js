@@ -3,30 +3,35 @@ const Schema = mongoose.Schema;
 
 const PostSchema = new Schema({
     author: {
-        type:Schema.Types.ObjectId,
-        ref:'user'
-    },
-    likes:[{
         type: Schema.Types.ObjectId,
-        ref:'user'
+        ref: 'user'
+    },
+    likes: [{
+        type: Schema.Types.ObjectId,
+        ref: 'user'
     }],
-    content:{
+    likeCount: {
+        type: Schema.Types.Number,
+        default: 0
+    }
+    ,
+    content: {
         type: Schema.Types.String
     },
-    image:{
+    image: {
         type: Schema.Types.String,
     },
-    imagePublicId:{
+    imagePublicId: {
         type: Schema.Types.String
     },
     timestamps: Number,
-    comments:[{
+    comments: [{
         type: Schema.Types.ObjectId,
         ref: 'comment'
     }],
-    mode:['public','private','followers']
-},{
-    timestamps:true
+    mode: ['public', 'private', 'followers']
+}, {
+    timestamps: true
 })
 
-module.exports = mongoose.model('post',PostSchema)
+module.exports = mongoose.model('post', PostSchema)

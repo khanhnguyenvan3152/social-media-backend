@@ -14,13 +14,12 @@ const resolver = {
                 if (currentUser.follows.includes(followedUserId)) {
                     throw new Error('You already followed this user!')
                 }
-                currentUser.follows.push(followedUserId)
-                await currentUser.save()
-                let followedUser = await User.findByIdAndUpdate(followedUserId, { $push: { followers: currentUserId } })
                 let follow = await new Follow({
                     user: currentUserId,
-                    follow: followedUser
+                    follow: followedUserId
                 }).save()
+                let followedUser = await User.findByIdAndUpdate(followedUserId, { $push: { followers: follow._id }, $inc: { followerCount: 1 } })
+                await User.findByIdAndUpdate(currentUserId, { $push: { follows: follow._id }, $inc: { followCount: 1 } })
                 return true;
             } catch (error) {
                 console.log(error)
@@ -31,10 +30,11 @@ const resolver = {
             try {
                 let currentUserId = context.authUser._id
                 let followedUserId = args.userId
-                let currentUser = User.findByIdAndUpdate(currentUserId, { $pull: { follows: followedUserId } })
-                let followedUser = User.findByIdAndUpdate(followedUserId, { $pull: { followers: currentUserId } })
-                await Promise.all([currentUser, followedUser])
-                let follow = await Follow.findOneAndDelete({ user: currentUserId, follow: followedUserId })
+                let follow = await Follow.findOne({ user: currentUserId, follow: followedUserId })
+                console.log(follow)
+                let currentUser = await User.findByIdAndUpdate(currentUserId, { $pull: { follows: follow._id }, $inc: { followCount: -1 } })
+                let followedUser = await User.findByIdAndUpdate(followedUserId, { $pull: { followers: follow._id }, $inc: { followerCount: -1 } })
+                await Follow.findOneAndDelete(follow._id)
                 return true;
             } catch (err) {
                 return false;
