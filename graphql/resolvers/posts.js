@@ -16,15 +16,40 @@ const resolvers = {
         },
         getFollowedPosts: async function (parent, args, context, info) {
             try {
-                let { userId } = args
+                let { userId, offset, limit } = args
                 let result = await User.findById(userId).populate({
                     path: "follows",
                 })
                 let followedUsers = []
-                result.follows.reduce((followedUsers, follow) => followedUsers.push(follow.follow), followedUsers)
-                let posts = await Post.find({ author: { $in: followedUsers } }).sort({ createdAt: 'desc' }).populate("author")
-                console.log(posts)
-                return { posts, count: posts.length };
+                result.follows.map((follow) => followedUsers.push(follow.follow), followedUsers)
+                const query = {
+                    $or: [{ author: { $in: followedUsers } }, { author: userId }],
+                };
+                const followedPostsCount = await Post.find(query).countDocuments();
+                let posts = await Post.find({ author: { $in: followedUsers } })
+                    .sort({ createdAt: 'desc' })
+                    .populate({
+                        path: 'author',
+                        populate: [
+                            { path: 'follows' },
+                            { path: 'followers' },
+                            {
+                                path: 'notifications',
+                                populate: [{ path: 'author' }, { path: 'follow' }, { path: 'like' }, { path: 'comment' }],
+                            },
+                        ],
+                    })
+                    .populate('likes')
+                    .populate({
+                        path: 'comments',
+                        options: { sort: { createdAt: 'desc' } },
+                        populate: { path: 'author' },
+                    })
+                    .skip(offset)
+                    .limit(limit)
+                console.log(followedPostsCount)
+
+                return { posts, count: followedPostsCount };
             } catch (err) {
                 console.log(err)
                 throw new ApolloError("Cannot get posts")

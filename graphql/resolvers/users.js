@@ -126,15 +126,15 @@ const resolvers = {
         },
         searchUsers: async function (parent, args, context, info) {
             try {
-                let { searchQuery, offset, limit } = args
+                let { query, offset, limit } = args
                 const userId = context.authUser._id
-                if (!searchQuery) {
+                if (!query) {
                     return []
                 }
                 let users = await User.find({
                     $or: [
-                        { firstName: new RegExp(searchQuery, 'i') },
-                        { lastName: new RegExp(searchQuery, 'i') },
+                        { firstName: new RegExp(query, 'i') },
+                        { lastName: new RegExp(query, 'i') },
                     ],
                     id: { $ne: userId }
                 }).skip(offset).limit(limit)

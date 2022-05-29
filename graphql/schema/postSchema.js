@@ -60,7 +60,7 @@ const PostSchema = gql`
         posts: [Post]!
         post(_id:ID): Post!
         getUserPosts(userId:ID,skip:Int,limit:Int):UserPostsPayload
-        getFollowedPosts(userId:ID):PostsPayload
+        getFollowedPosts(userId:ID,offset:Int,limit:Int):PostsPayload
         #Get all posts
         getPosts(authUserId:ID!,skip:Int,limit:Int):PostsPayload
         #Get post by _id
