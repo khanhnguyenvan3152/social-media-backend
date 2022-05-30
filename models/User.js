@@ -16,7 +16,7 @@ const User = new Schema({
 
     },
     isOnline: {
-        types: Schema.Types.Boolean,
+        types: Boolean,
         default: false
     },
     password: {

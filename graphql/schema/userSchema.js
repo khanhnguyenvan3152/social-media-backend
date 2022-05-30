@@ -92,9 +92,7 @@ const UserSchema = gql`
     }
     input UserAvatarInput{
         avatar: Upload
-        imagePublicId: String
-        image: String
-        userId: ID
+        isCover:Boolean
     }
     type SignUpResponse{
         user:UserPayload
@@ -129,8 +127,9 @@ const UserSchema = gql`
         uploadUserAvatar(input: UserAvatarInput):UserPayload
         login(input:LoginInput):LoginResponse
     }
-    extend type Subscription{
-        isUserOnline(authUserId: ID!,userID:ID!):IsUserOnlinePayload
+    extend type Subscription {
+        # Subscribes to is user online event
+        isUserOnline(authUserId: ID!, userId: ID!): IsUserOnlinePayload
     }
 `
 

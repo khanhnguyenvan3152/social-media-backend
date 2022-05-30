@@ -9,8 +9,13 @@ const Post = require('../../models/Post')
 const Notification = require('../../models/Notification')
 const { sendMail } = require('../../utils/mailer')
 const config = require('../../config')
+const { uploadToCloudinary } = require('../../utils/cloudinary')
 const RESET_PASSWORD_EXPIRY = 3600000
 const AUTH_TOKEN_EXPIRY = '1y'
+const { pubSub } = require('../../utils/apollo-server')
+const { withFilter } = require('graphql-subscriptions')
+const { IS_USER_ONLINE } = require('../../constants/Subscription')
+const uuid = require('uuid').v4
 const resolvers = {
     Query: {
         getAuthUser: async function (parent, args, context, info) {
@@ -129,7 +134,9 @@ const resolvers = {
                 let { query, offset, limit } = args
                 const userId = context.authUser._id
                 if (!query) {
-                    return []
+                    let count = await User.find().countDocuments()
+                    let users = await User.find().skip(offset).limit(limit)
+                    return { users: users, offset, limit, count: count }
                 }
                 let users = await User.find({
                     $or: [
@@ -175,6 +182,7 @@ const resolvers = {
                 user.gender = gender;
                 user.firstName = firstName;
                 user.lastName = lastName;
+                user.isOnline = false
                 await user.save();
                 //Return success message
                 // const token = jwt.sign({_id:user._id,fullName:lastName + firstName},tokenSecret,{expiresIn:TKEN})
@@ -259,7 +267,50 @@ const resolvers = {
                     throw new UserInputError('Email or password does not match')
                 }
             }
-        }
+        },
+        uploadUserAvatar: async function (parent, args, context, info) {
+            try {
+                const userId = context.authUser._id
+                const isCover = args.input.isCover
+                const { createReadStream } = await args.input.avatar;
+                const stream = createReadStream();
+                const imagePublicId = uuid()
+                const uploadImage = await uploadToCloudinary(stream, 'user', imagePublicId);
+
+                if (uploadImage.secure_url) {
+                    const fieldsToUpdate = {};
+                    console.log(uploadImage)
+                    if (isCover) {
+                        fieldsToUpdate.cover = uploadImage.secure_url;
+                        fieldsToUpdate.coverPublicId = uploadImage.public_id;
+                    } else {
+                        fieldsToUpdate.avatar = uploadImage.secure_url;
+                        fieldsToUpdate.imagePublicId = uploadImage.public_id;
+                    }
+                    const updatedUser = await User.findOneAndUpdate({ _id: userId }, { ...fieldsToUpdate }, { new: true })
+                        .populate('posts')
+                        .populate('likes')
+
+                    return updatedUser;
+                }
+            }
+            catch (error) {
+                console.log(error)
+                throw new Error('Something went wrong while uploading image to Cloudinary.');
+            }
+
+        },
+    },
+    Subscription: {
+        /**
+         * Subscribes to user's isOnline change event
+         */
+        isUserOnline: {
+            subscribe: withFilter(
+                () => pubSub.asyncIterator(IS_USER_ONLINE),
+                (payload, variables, { authUser }) => variables.authUserId === authUser.id
+            ),
+        },
     }
 }
 

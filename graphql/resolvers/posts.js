@@ -28,6 +28,8 @@ const resolvers = {
                 const followedPostsCount = await Post.find(query).countDocuments();
                 let posts = await Post.find({ author: { $in: followedUsers } })
                     .sort({ createdAt: 'desc' })
+                    .skip(offset)
+                    .limit(limit)
                     .populate({
                         path: 'author',
                         populate: [
@@ -45,8 +47,7 @@ const resolvers = {
                         options: { sort: { createdAt: 'desc' } },
                         populate: { path: 'author' },
                     })
-                    .skip(offset)
-                    .limit(limit)
+
                 console.log(followedPostsCount)
 
                 return { posts, count: followedPostsCount };
