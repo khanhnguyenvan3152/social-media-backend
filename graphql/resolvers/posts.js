@@ -14,6 +14,37 @@ const resolvers = {
             let result = await Post.findById(args._id)
             return result
         },
+        getPosts: async (parent, args, context, info) => {
+            const { offset, limit, authUserId } = args
+            const query = {
+                $and: [{ image: { $ne: null } }, { author: { $ne: authUserId } }],
+            };
+            const postsCount = await Post.find(query).countDocuments();
+            const allPosts = await Post.find(query)
+                .populate({
+                    path: 'author',
+                    populate: [
+                        { path: 'follows' },
+                        { path: 'followers' },
+                        {
+                            path: 'notifications',
+                            populate: [{ path: 'author' }, { path: 'follow' }, { path: 'like' }, { path: 'comment' }]
+                        },
+                    ],
+                })
+                .populate('likes')
+                .populate({
+                    path: 'comments',
+                    options: { sort: { createdAt: 'desc' } },
+                    populate: { path: 'author' },
+                })
+                .skip(offset)
+                .limit(limit)
+                .sort({ createdAt: 'desc' });
+
+            return { posts: allPosts, count: postsCount };
+        },
+
         getFollowedPosts: async function (parent, args, context, info) {
             try {
                 let { userId, offset, limit } = args
@@ -26,7 +57,7 @@ const resolvers = {
                     $or: [{ author: { $in: followedUsers } }, { author: userId }],
                 };
                 const followedPostsCount = await Post.find(query).countDocuments();
-                let posts = await Post.find({ author: { $in: followedUsers } })
+                let posts = await Post.find(query)
                     .sort({ createdAt: 'desc' })
                     .skip(offset)
                     .limit(limit)
@@ -58,7 +89,6 @@ const resolvers = {
         },
         getPostComments: async function (parent, args, context, info) {
             const { postId, limit, offset } = args
-            console.log(1)
             let result = await Post.findById(postId)
                 .populate("comments")
                 .populate({

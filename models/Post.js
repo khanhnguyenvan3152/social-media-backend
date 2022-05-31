@@ -8,7 +8,7 @@ const PostSchema = new Schema({
     },
     likes: [{
         type: Schema.Types.ObjectId,
-        ref: 'user'
+        ref: 'like'
     }],
     likeCount: {
         type: Schema.Types.Number,
@@ -29,6 +29,10 @@ const PostSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'comment'
     }],
+    commentCount: {
+        type: Schema.Types.Number,
+        default: 0
+    },
     mode: ['public', 'private', 'followers']
 }, {
     timestamps: true

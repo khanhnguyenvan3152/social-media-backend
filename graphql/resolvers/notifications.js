@@ -1,7 +1,8 @@
 const Notification = require('../../models/Notification')
 const User = require('../../models/User')
 const { pubSub } = require('../../utils/apollo-server')
-const {withFilter} = require('graphql-subscriptions')
+const { withFilter } = require('graphql-subscriptions')
+const { NOTIFICATION_CREATED_OR_DELETED } = require('../../constants/Subscription')
 const resolvers = {
     Query: {
         getUserNotifications: async (parent, args, context, info) => {
@@ -28,19 +29,14 @@ const resolvers = {
     Mutation: {
         createNotification: async (parent, args, context, info) => {
             let { userId, authorId, postId, notificationType, notificationTypeId } = args.input
-            const newNotification = await Notification({
+            let newNotification = await Notification({
                 author: authorId,
                 user: userId,
                 post: postId,
                 [notificationType.toLowerCase()]: notificationTypeId
             }).save()
             await User.findOneAndUpdate({ _id: userId }, { $push: { notifications: newNotification._id } })
-            newNotification = await newNotification
-                .populate('author')
-                .populate('follow')
-                .populate({ path: 'comment', populate: { path: 'post' } })
-                .populate({ path: 'like', populate: { path: 'post' } })
-                .execPopulate();
+            newNotification = await Notification.findById(newNotification._id).populate('author').populate('follow').populate({ path: 'comment', populate: { path: 'post' } }).populate({ path: 'like', populate: { path: 'post' } })
             pubSub.publish(NOTIFICATION_CREATED_OR_DELETED, {
                 notificationCreatedOrDeleted: {
                     operation: 'CREATE',
@@ -51,12 +47,12 @@ const resolvers = {
         },
 
         deleteNotification: async (parent, args, context, info) => {
-            let {_id} = args.input
+            let { _id } = args.input
             let notification = await Notification.findByIdAndRemove(_id);
 
             // Delete notification from users collection
             await User.findOneAndUpdate({ _id: notification.user }, { $pull: { notifications: notification.id } });
-    
+
             // Publish notification deleted event
             notification = await notification
                 .populate('author')
@@ -64,14 +60,14 @@ const resolvers = {
                 .populate({ path: 'comment', populate: { path: 'post' } })
                 .populate({ path: 'like', populate: { path: 'post ' } })
                 .execPopulate();
-    
+
             pubSub.publish(NOTIFICATION_CREATED_OR_DELETED, {
                 notificationCreatedOrDeleted: {
                     operation: 'DELETE',
                     notification,
                 },
             });
-    
+
             return notification;
         },
 

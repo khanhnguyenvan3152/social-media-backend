@@ -1,32 +1,36 @@
-const mongoose  = require('mongoose');
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema
 const NotificationSchema = new Schema({
     author: {
         type: Schema.Types.ObjectId,
         ref: 'user'
     },
-    user:{
+    user: {
         type: Schema.Types.ObjectId,
         ref: 'user'
     },
-    post:{
+    post: {
         type: Schema.Types.ObjectId,
-        ref:'post'
+        ref: 'post'
     },
-    like:{
+    follow: {
         type: Schema.Types.ObjectId,
-        ref:'like'
+        ref: 'follow'
     },
-    comment:{
-        type:Schema.Types.ObjectId,
-        ref:'comment'
+    like: {
+        type: Schema.Types.ObjectId,
+        ref: 'like'
     },
-    seen:{
+    comment: {
+        type: Schema.Types.ObjectId,
+        ref: 'comment'
+    },
+    seen: {
         type: Schema.Types.Boolean,
         default: false
     }
-},{
-    timestamps:true
+}, {
+    timestamps: true
 })
 
-module.exports = mongoose.model('notification',NotificationSchema);
+module.exports = mongoose.model('notification', NotificationSchema);

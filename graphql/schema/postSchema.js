@@ -16,6 +16,9 @@ const PostSchema = gql`
         likes: [User]
         createdAt: Date
         updatedAt: Date
+        likeCount: Int
+        comments: [Comment]
+        commentCount: Int
     }
     type PostPayload{
         _id: ID
@@ -24,10 +27,12 @@ const PostSchema = gql`
         comments: [CommentPayload]
         like: [Like]
         author: UserPayload
-        likes: [Like]
+        likes: [LikePayload]
         createdAt: String
         updatedAt: String
         content: String
+        likeCount: Int
+        commentCount: Int
     }
     type UserPostsPayload{
         posts: [PostPayload]
@@ -62,7 +67,7 @@ const PostSchema = gql`
         getUserPosts(userId:ID,skip:Int,limit:Int):UserPostsPayload
         getFollowedPosts(userId:ID,offset:Int,limit:Int):PostsPayload
         #Get all posts
-        getPosts(authUserId:ID!,skip:Int,limit:Int):PostsPayload
+        getPosts(authUserId:ID,offset:Int,limit:Int):PostsPayload
         #Get post by _id
         getPost(_id:Int):PostPayload
         getPostComments(postId:ID,offset:Int,limit:Int):[CommentPayload]

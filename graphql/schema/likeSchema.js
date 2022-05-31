@@ -21,7 +21,7 @@ const LikeSchema = gql`
         postId: ID!
     }
     input DeleteLikeInput{
-        _id: ID!
+        likeId:ID
     }
     #Queries
     extend type Query{
@@ -32,7 +32,7 @@ const LikeSchema = gql`
         #New like action from user
         createLike(postId:ID):Like
         #Remove like
-        deleteLike(postId:ID,likeID:ID):Like
+        deleteLike(postId:ID,likeId:ID):Like
     }
 `
 module.exports = LikeSchema

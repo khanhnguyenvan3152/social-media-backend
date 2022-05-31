@@ -1,4 +1,4 @@
-const {gql} = require('apollo-server-express')
+const { gql } = require('apollo-server-express')
 
 const NotificationSchema = gql`
     enum NotificationType{
@@ -20,9 +20,9 @@ const NotificationSchema = gql`
     }
     #Input
     input CreateNotificationInput{
-        userId: ID!
+        userId: ID
         authorId: ID
-        postID: ID
+        postId: ID
         notificationType: NotificationType
         notificationTypeId: ID
     }
@@ -39,7 +39,7 @@ const NotificationSchema = gql`
         like: LikePayload
         post: PostPayload
         comment: CommentPayload
-        author: [UserPayload]
+        author: UserPayload
         follow: Follow
         createdAt: String
     }

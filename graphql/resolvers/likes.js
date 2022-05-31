@@ -6,17 +6,20 @@ const resolvers = {
         createLike: async (parent, args, context, info) => {
             let { postId } = args
             let userId = context.authUser._id;
+            console.log(postId)
             const like = await new Like({ user: userId, post: postId }).save()
             //Push like to post collection
-            await Post.findOneAndUpdate({ _id: PostId }, { $push: { likes: like._id } })
+            await Post.findOneAndUpdate({ _id: postId }, { $push: { likes: like._id }, $inc: { likeCount: 1 } })
+            await User.findByIdAndUpdate({ _id: userId }, { $push: { likes: like._id } })
+            console.log(like)
             return like;
         },
         deleteLike: async (parent, args, context, info) => {
             let { likeId } = args;
-            let { userId } = context.authUser
             const like = await Like.findByIdAndDelete(likeId);
-            await User.findOneAndUpdate({ _id: userId }, { $pull: { likes: like._id } })
-            await Post.findOneAndUpdate({ _id: like.post }, { $pull: { likes: like._id } })
+            console.log(like)
+            await User.findOneAndUpdate({ _id: like.user }, { $pull: { likes: like._id } })
+            await Post.findOneAndUpdate({ _id: like.post }, { $pull: { likes: like._id }, $inc: { likeCount: -1 } })
             return like
         }
     }
