@@ -86,7 +86,7 @@ const resolvers = {
             return result.includes(userId)
         },
         getUserPosts: async function (parent, args, content, info) {
-            let { userId, skip, limit } = args
+            let { userId, offset, limit } = args
             let query = { author: userId }
             let count = await Post.find(query).countDocuments()
             let posts = await Post.find(query)
@@ -111,19 +111,24 @@ const resolvers = {
                                 {
                                     path: 'author'
                                 },
-                                { path: 'follows' },
-                                { path: 'likes' },
-                                { path: 'comments' }],
+                                { path: 'follow' },
+                                { path: 'like' },
+                                { path: 'comment' }],
                         },
                     ],
                 })
-                .populate('likes')
+                .populate({
+                    path: 'likes',
+                    populate: [
+                        { path: "user" }
+                    ]
+                })
                 .populate({
                     path: 'comments',
                     options: { sort: { createdAt: 'desc' } },
                     populate: { path: 'author' },
                 })
-                .skip(skip)
+                .skip(offset)
                 .limit(limit)
                 .sort({ createdAt: 'desc' });
             console.log(posts)
@@ -276,10 +281,8 @@ const resolvers = {
                 const stream = createReadStream();
                 const imagePublicId = uuid()
                 const uploadImage = await uploadToCloudinary(stream, 'user', imagePublicId);
-
                 if (uploadImage.secure_url) {
                     const fieldsToUpdate = {};
-                    console.log(uploadImage)
                     if (isCover) {
                         fieldsToUpdate.cover = uploadImage.secure_url;
                         fieldsToUpdate.coverPublicId = uploadImage.public_id;
@@ -290,7 +293,19 @@ const resolvers = {
                     const updatedUser = await User.findOneAndUpdate({ _id: userId }, { ...fieldsToUpdate }, { new: true })
                         .populate('posts')
                         .populate('likes')
-
+                        .populate({
+                            path: 'follows',
+                            populate: [
+                                { path: "follow" }
+                            ]
+                        })
+                        .populate({
+                            path: 'followers',
+                            populate: [
+                                { path: "user" }
+                            ]
+                        })
+                    console.log(updatedUser)
                     return updatedUser;
                 }
             }

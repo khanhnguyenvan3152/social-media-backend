@@ -109,7 +109,6 @@ const resolvers = {
                 .or([{ content: { $regex: new RegExp(query, "i") } },
                 ])
                 .skip(offset).limit(limit)
-            console.log(result)
             return { posts: result, offset, limit, count: result.length }
         }
     },

@@ -15,6 +15,10 @@ const PostSchema = new Schema({
         default: 0
     }
     ,
+    isDeleted: {
+        type: Schema.Types.Boolean,
+        default: false
+    },
     content: {
         type: Schema.Types.String
     },
