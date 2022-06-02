@@ -61,6 +61,10 @@ const PostSchema = gql`
         limit: Int
         count: Int
     }
+    type CommentsPayload{
+        comments: [CommentPayload]
+        count: Int
+    }
     extend type Query{
         posts: [Post]!
         post(_id:ID): Post!
@@ -70,7 +74,7 @@ const PostSchema = gql`
         getPosts(authUserId:ID,offset:Int,limit:Int):PostsPayload
         #Get post by _id
         getPost(_id:Int):PostPayload
-        getPostComments(postId:ID,offset:Int,limit:Int):[CommentPayload]
+        getPostComments(postId:ID,offset:Int,limit:Int):CommentsPayload
         searchPosts(query:String,offset:Int,limit:Int):SearchPayload
     }
     extend type Mutation{

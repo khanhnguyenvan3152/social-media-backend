@@ -11,17 +11,15 @@ const resolver = {
         createComment: async function (parent, args, context, info) {
             try {
                 let { postId, content } = args
-                console.log(context.authUser)
                 let comment = await new Comment({
                     post: postId,
                     author: context.authUser._id,
                     content: content
-                })
+                }).save()
                 await Post.findByIdAndUpdate(postId, { $push: { comments: comment._id } })
                 await User.findByIdAndUpdate(context.authUser._id, { $push: { comments: comment._id } })
                 return comment
             } catch (err) {
-                console.log(err)
                 throw new ApolloError("Create new comment failed")
             }
         },

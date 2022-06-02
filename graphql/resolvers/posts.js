@@ -2,6 +2,7 @@ const { UserInputError, ForbiddenError, AuthenticationError, ApolloError } = req
 const Image = require('../../models/Image');
 const Post = require('../../models/Post');
 const User = require('../../models/User')
+const Comment = require('../../models/Comment')
 const { uploadToCloudinary } = require('../../utils/cloudinary');
 const { GraphQLUpload, graphqlUploadExpress } = require('graphql-upload')
 const resolvers = {
@@ -88,17 +89,18 @@ const resolvers = {
             }
         },
         getPostComments: async function (parent, args, context, info) {
-            const { postId, limit, offset } = args
-            let result = await Post.findById(postId)
-                .populate("comments")
-                .populate({
-                    path: "comments",
-                    populate: [
-                        "author"
-                    ]
-                })
-            console.log(comments)
-            return comments;
+            try {
+                const { postId, limit, offset } = args
+                let count = await Comment.find({post:postId}).countDocuments()
+                let result = await Comment.find({post:postId})
+                    .skip(offset)
+                    .limit(limit)
+                    .populate("author")
+                    .populate("post")
+                return {comments:result,count:count};
+            }catch(err){
+                throw new Error("Cannot get comments!")
+            }
         },
         searchPosts: async function (parent, args, context, info) {
             const { query, offset, limit } = args
