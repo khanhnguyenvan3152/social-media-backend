@@ -11,9 +11,14 @@ const resolvers = {
             let result = await Post.find({})
             return result;
         },
-        post: async function (parent, args, context, info) {
-            let result = await Post.findById(args._id)
-            return result
+        getPost: async function (parent, args, context, info) {
+            try {
+                let { postId } = args
+                let result = await Post.findById(postId)
+                return result
+            } catch (err) {
+                throw new Error("Cannot get post data!");
+            }
         },
         getPosts: async (parent, args, context, info) => {
             const { offset, limit, authUserId } = args
@@ -91,14 +96,14 @@ const resolvers = {
         getPostComments: async function (parent, args, context, info) {
             try {
                 const { postId, limit, offset } = args
-                let count = await Comment.find({post:postId}).countDocuments()
-                let result = await Comment.find({post:postId})
+                let count = await Comment.find({ post: postId }).countDocuments()
+                let result = await Comment.find({ post: postId })
                     .skip(offset)
                     .limit(limit)
                     .populate("author")
                     .populate("post")
-                return {comments:result,count:count};
-            }catch(err){
+                return { comments: result, count: count };
+            } catch (err) {
                 throw new Error("Cannot get comments!")
             }
         },

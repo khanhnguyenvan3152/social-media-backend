@@ -67,7 +67,6 @@ const PostSchema = gql`
     }
     extend type Query{
         posts: [Post]!
-        post(_id:ID): Post!
         getUserPosts(userId:ID,offset:Int,limit:Int):UserPostsPayload
         getFollowedPosts(userId:ID,offset:Int,limit:Int):PostsPayload
         #Get all posts
