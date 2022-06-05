@@ -78,7 +78,7 @@ const PostSchema = gql`
     }
     extend type Mutation{
         createNewPost(input: PostInput):PostPayload
-        updatePost(input: PostUpdateInput):PostPayload
+        updatePost(postId:ID, content:String, image:Upload):PostPayload
         deletePost(input: DeletePostInput):PostPayload
     }
 `

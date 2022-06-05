@@ -29,5 +29,8 @@ const CommentSchema = gql`
         createComment(postId:ID,content:String,):Comment
         deleteComment(input: DeleteLikeInput):Comment
     }
+    extend type Subscription{
+        commentAdded(postId:ID):Comment
+    }
 `
 module.exports = CommentSchema

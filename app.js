@@ -9,44 +9,48 @@ var cors = require('cors')
 var indexRouter = require('./routes/index');
 var apiRouter = require('./routes/api');
 var cloudinary = require('./utils/cloudinary')
-var schema = require('./graphql/schema')
+const appSchema = require('./graphql/schema')
+const appResolver = require('./graphql/resolvers')
 var resolvers = require('./graphql/resolvers')
 var context = require('./graphql/context')
 const Models = require('./models')
 const { createApolloServer } = require('./utils/apollo-server')
 const { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-server-core');
 const { graphqlUploadExpress } = require('graphql-upload');
-const { WebSocketServer } = require('ws') 
-const { useServer } = require('graphql-ws/lib/use/ws') 
-
+const {SubscriptionServer} = require('subscriptions-transport-ws')
+const { useServer } = require('graphql-ws/lib/use/ws')
+const {execute,subscribe} = require('graphql');
+const { makeExecutableSchema } = require('@graphql-tools/schema');
 async function startServer() {
   const app = express();
   const httpServer = http.createServer(app);
-
+  const schema = makeExecutableSchema({typeDefs:appSchema,resolvers:appResolver})
   // Creating the WebSocket server
-  const wsServer = new WebSocketServer({
-    // This is the `httpServer` we created in a previous step.
-    server: httpServer,
-    // Pass a different path here if your ApolloServer serves at
-    // a different path.
-    path: '/graphql',
-  });
+  const subscriptionServer =  SubscriptionServer.create(
+    {
+      schema,execute,subscribe
+    }
+    ,
+    {
+      server: httpServer,
+      path: '/graphql'
+    })
 
   // Hand in the schema we just created and have the
   // WebSocketServer start listening.
-  const serverCleanup = useServer({ schema }, wsServer);
-  const server = createApolloServer(schema, resolvers,[{
+
+  const server = createApolloServer(schema, resolvers, [{
     async serverWillStart() {
       return {
         async drainServer() {
-          await serverCleanup.dispose();
+           subscriptionServer.close();
         },
       };
     },
   },
-  ApolloServerPluginLandingPageGraphQLPlayground,
-  ApolloServerPluginDrainHttpServer({httpServer})
-]);
+    ApolloServerPluginLandingPageGraphQLPlayground,
+  ]);
+  server.subscriptions
   await server.start()
   app.use(graphqlUploadExpress())
   server.applyMiddleware({ app: app })
@@ -76,7 +80,6 @@ async function startServer() {
   //Connect to database and initialize graphQL server
   db();
 
-
   // error handler
   app.use(function (err, req, res, next) {
     // set locals, only providing error in development
@@ -87,10 +90,9 @@ async function startServer() {
     res.status(err.status || 500);
     res.render('error');
   });
-  app.listen(3000, () => {
-    console.log('Server is running at port 3000')
+  httpServer.listen({ port: 3000 }, () => {
+    console.log('Server is listening on port 3000.')
   })
-
 }
 startServer()
 

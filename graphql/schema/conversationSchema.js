@@ -12,6 +12,17 @@ const ConversationSchema = gql`
         participants: [UserPayload]
         message: [MessagePayload]
     }
+    type ConversationsPayload {
+        _id: ID!
+        firstName: String
+        lastName: String
+        image: String
+        isOnline: Boolean
+        seen: Boolean
+        lastMessage: String
+        lastMessageSender: Boolean
+        lastMessageCreatedAt: String
+    }
     extend type Query{
         getConversations(_uid: ID):[Conversation]
     }

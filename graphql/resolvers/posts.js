@@ -146,16 +146,28 @@ const resolvers = {
             return newPost;
         },
         updatePost: async function (parent, args, context, info) {
-            let user = content.authUser
-            let { content, postId } = args.input
-            let post = await Post.findById(postId)
-            if (user._id != post.user) {
+            let user = context.authUser
+            let { content, postId,image } = args
+            let post = await Post.findById(postId).populate("author")
+            console.log(postId)
+            if (user._id != post.author._id) {
                 throw new ForbiddenError('User does not have pemission to modify this post.')
             }
             if (!content) {
                 throw new UserInputError('Must provide update content.')
             }
             post.content = content;
+            let imageURL, imagePublicId, imageObjectId
+            if (image != null) {
+                let { createReadStream } = await image
+                const stream = createReadStream()
+                const uploadImage = await uploadToCloudinary(stream, 'post')
+                if (!uploadImage.secure_url) throw new Error('Image upload failed')
+                imageURL = uploadImage.secure_url;
+                imagePublicId = uploadImage.public_id;
+                post.image= imageURL,
+                post.imagePublicId= imagePublicId
+            }
             await post.save()
             return post;
         }

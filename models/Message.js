@@ -6,6 +6,10 @@ const MessageSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user'
     },
+    receiver:{
+        type: Schema.Types.ObjectId,
+        ref: "user"
+    },
     content: {
         type: Schema.Types.String,
         maxlength:1000

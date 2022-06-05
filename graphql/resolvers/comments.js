@@ -3,6 +3,8 @@ const Comment = require('../../models/Comment')
 const Post = require('../../models/Post')
 const User = require('../../models/User')
 const { ApolloError } = require('apollo-server-express')
+const { withFilter } = require('graphql-subscriptions')
+const { pubSub } = require('../../utils/apollo-server')
 const resolver = {
     Query: {
 
@@ -33,6 +35,19 @@ const resolver = {
             } catch (err) {
                 throw new ApolloError("Delete comment failed")
             }
+        }
+    },
+    Subscription:{
+        commentAdded: {
+            subscribe: withFilter(
+                ()=> pubSub.asyncIterator('COMMENT_ADDED'),
+                (payload,variables)=>{
+                    const {user,author} = payload.commentAdded;
+                    const {authUserId,userId} = variables;
+                    
+
+                }
+            )
         }
     }
 }

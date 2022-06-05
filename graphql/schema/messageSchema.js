@@ -17,7 +17,12 @@ const MessageSchema = gql`
         getMessage(_id:ID):Message
         getMessages(_conversationId:ID):[Message]
         getMessagesOfUser(_conversationId:ID,_userId:ID):[Message]
-        
+    }
+    extend type Subscription {
+        # Subscribes to message created event
+        messageCreated(authUserId: ID!, userId: ID!): MessagePayload
+        # Subscribes to new conversation event
+        newConversation: ConversationsPayload
     }
 `
 
