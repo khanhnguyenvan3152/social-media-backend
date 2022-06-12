@@ -8,6 +8,7 @@ exports.pubSub = new PubSub()
 
 const checkAuthorization = (token) => {
     return new Promise(async (resolve, reject) => {
+        if(token.split(' ')[1] == "null") return resolve(null);
         const authUser =  jwt.verify(token, config.tokenSecret)
         if (authUser) {
             resolve(authUser)
@@ -39,10 +40,10 @@ exports.createApolloServer = (schema, resolvers, plugins) => {
         plugins: plugins,
         subscriptions: {
             onConnect: async (connectionParams, webSocket) => {
-                console.log(1)
                 if (connectionParams.authorization) {
                     const user = await checkAuthorization(connectionParams.authorization)
-                    pubSub.publish(IS_USER_ONLINE, {
+                    console.log(user)
+                    this.pubSub.publish(IS_USER_ONLINE, {
                         isUserOnline: {
                             userId: user._id,
                             isOnline: true
@@ -56,7 +57,7 @@ exports.createApolloServer = (schema, resolvers, plugins) => {
             onDisconnect: async (webSocket, context) => {
                 const conn = await context.initPromise;
                 if (conn && conn.authUser) {
-                    pubSub.publish(IS_USER_ONLINE, {
+                    this.pubSub.publish(IS_USER_ONLINE, {
                         isUserOnline: {
                             userId: conn.authUser._id,
                             isOnline: false

@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
-import { withFilter } from 'apollo-server';
+const mongoose = require('mongoose');
+const { withFilter } = require('apollo-server');
 
-import { pubSub } from '../utils/apollo-server';
-import { MESSAGE_CREATED, NEW_CONVERSATION } from '../../constants/Subscriptions';
-import Message from '../../models/Message';
+const { pubSub } = require('../utils/apollo-server');
+const { MESSAGE_CREATED, NEW_CONVERSATION } = require('../../constants/Subscription');
+const  Message = require('../../models/Message');
 const Query = {
     /**
      * Gets user's specific conversation
@@ -11,9 +11,9 @@ const Query = {
      * @param {string} authUserId
      * @param {string} userId
      */
-    getMessages: async (parent,args,context,info) => {
+    getMessages: async (parent, args, context, info) => {
         const authUserId = context.authUser._id;
-        const {userId} = args
+        const { userId } = args
         const specificMessage = await Message.find()
             .and([
                 { $or: [{ sender: authUserId }, { receiver: authUserId }] },
@@ -30,8 +30,9 @@ const Query = {
      * 
      * @param {string} authUserId
      */
-    getConversations: async (root, { authUserId }, { User, Message }) => {
+    getConversations: async (parent, args, context, info) => {
         // Get users with whom authUser had a chat
+        const authUserId = context.authUser._id;
         const users = await User.findById(authUserId).populate('messages', 'id username fullName image isOnline');
 
         // Get last messages with wom authUser had a chat
@@ -62,22 +63,21 @@ const Query = {
         const conversations = [];
         users.messages.map((u) => {
             const user = {
-                id: u.id,
-                username: u.username,
-                fullName: u.fullName,
-                image: u.image,
+                _id: u._id,
+                firstName: u.firstName,
+                lastName: u.lastName,
+                avatar: u.avatar,
                 isOnline: u.isOnline,
             };
 
-            const sender = lastMessages.find((m) => u.id === m.sender.toString());
+            const sender = lastMessages.find((m) => u._id === m.sender.toString());
             if (sender) {
                 user.seen = sender.seen;
                 user.lastMessageCreatedAt = sender.createdAt;
                 user.lastMessage = sender.message;
                 user.lastMessageSender = false;
             } else {
-                const receiver = lastMessages.find((m) => u.id === m.receiver.toString());
-
+                const receiver = lastMessages.find((m) => u._id === m.receiver.toString());
                 if (receiver) {
                     user.seen = receiver.seen;
                     user.lastMessageCreatedAt = receiver.createdAt;
@@ -173,8 +173,8 @@ const Subscription = {
                 const { sender, receiver } = payload.messageCreated;
                 const { authUserId, userId } = variables;
 
-                const isAuthUserSenderOrReceiver = authUserId === sender.id || authUserId === receiver.id;
-                const isUserSenderOrReceiver = userId === sender.id || userId === receiver.id;
+                const isAuthUserSenderOrReceiver = authUserId === sender._id || authUserId === receiver._id;
+                const isUserSenderOrReceiver = userId === sender._id || userId === receiver._id;
 
                 return isAuthUserSenderOrReceiver && isUserSenderOrReceiver;
             }
@@ -186,7 +186,7 @@ const Subscription = {
     newConversation: {
         subscribe: withFilter(
             () => pubSub.asyncIterator(NEW_CONVERSATION),
-            (payload, variables, { authUser }) => authUser && authUser.id === payload.newConversation.receiverId
+            (payload, variables, { authUser }) => authUser && authUser._id === payload.newConversation.receiverId
         ),
     },
 };
